@@ -18,6 +18,6 @@ public class Deal {
     public String category;
     public Location location;
     public Deal(){
-        
+
     }
 }
