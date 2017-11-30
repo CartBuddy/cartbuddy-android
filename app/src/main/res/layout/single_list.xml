@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_height="match_parent">
     <TextView
-        android:id="@+id/grid_title"
+        android:id="@+id/list_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
@@ -12,19 +12,19 @@
     </TextView>
 
     <ImageView
-        android:id="@+id/grid_image"
+        android:id="@+id/list_image"
         android:layout_width="100dp"
         android:layout_height="100dp"/>
 
     <TextView
-        android:id="@+id/grid_des"
+        android:id="@+id/list_des"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp">
     </TextView>
 
     <ImageButton
-        android:id="@+id/grid_vote"
+        android:id="@+id/list_vote"
         android:src="@drawable/ic_thumb_up_black_24dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

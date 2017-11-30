@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,12 +22,14 @@ import com.squareup.picasso.Picasso;
 
 public class DealAdapter extends BaseAdapter {
     private Context mContext;
+    private int resource;
     private ArrayList<Deal> deals;
     private ArrayList<String> titles;
     private ArrayList<String> imageUrls;
     private ArrayList<String> descriptions;
 
-    public DealAdapter(Context c, ArrayList<Deal> deals) {
+
+    public DealAdapter(Context c,  ArrayList<Deal> deals) {
         mContext = c;
         this.deals = deals;
         titles = new ArrayList<>();
@@ -60,13 +61,13 @@ public class DealAdapter extends BaseAdapter {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         if (convertView == null) {
             grid = new View(mContext);
-            grid = inflater.inflate(R.layout.single_grid, null);
+            grid = inflater.inflate(R.layout.single_list, null);
         }else {
             grid = (View) convertView;
         }
-        TextView titleView = (TextView) grid.findViewById(R.id.grid_title);
-        ImageView imageView = (ImageView) grid.findViewById(R.id.grid_image);
-        TextView desView = (TextView) grid.findViewById(R.id.grid_des);
+        TextView titleView = (TextView) grid.findViewById(R.id.list_title);
+        ImageView imageView = (ImageView) grid.findViewById(R.id.list_image);
+        TextView desView = (TextView) grid.findViewById(R.id.list_des);
         titleView.setText(titles.get(position));
         Picasso.with(mContext).load(imageUrls.get(position)).fit().centerCrop().into(imageView);
         desView.setText(descriptions.get(position));

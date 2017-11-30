@@ -6,10 +6,15 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -24,14 +29,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
-    final String TAG = "MAIN ACTIVITY";
+    private final String TAG = "MAIN";
     final String serverUrl = "";
     Intent intent;
-    GridView gridView;
+    ListView listView;
     ArrayList<Deal> deals;
+    DealAdapter dealAdapter;
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -64,50 +72,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
 
-//    private void getDeals(String url, final Context context){
-//        // Instantiate the RequestQueue.
-//        RequestQueue queue = Volley.newRequestQueue(this);
-//        // Request a string response from the provided URL.
-//        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-//                new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response) {
-//                        try{
-//                            JSONArray dealsJson = new JSONArray(response);
-//                            deals.clear();
-//                            for (int i = 0; i < dealsJson.length(); i++) {
-//                                JSONObject deal = dealsJson.getJSONObject(i);
-//                                Deal d = new Deal(deal.getString("title"), deal.getString("photoUrl"), deal.getString("des"));
-//                                deals.add(d);
-//                            }
-//                            gridView.setAdapter(new DealAdapter(context, deals));
-//                        }catch(JSONException e){
-//                            e.printStackTrace();
-//                        }
-//
-//                    }
-//                }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
-//            }
-//        });
-//        // Add the request to the RequestQueue.
-//        queue.add(stringRequest);
-//    }
+     void getDeals(String url, final Context context){
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try{
+                            JSONArray dealsJson = new JSONArray(response);
+                            deals.clear();
+                            for (int i = 0; i < dealsJson.length(); i++) {
+                                JSONObject deal = dealsJson.getJSONObject(i);
+                                Deal d = new Deal(deal.getString("title"), deal.getString("photoUrl"), deal.getString("des"));
+                                deals.add(d);
+                            }
+                            dealAdapter = new DealAdapter(context, deals);
+                            listView.setAdapter(dealAdapter);
+                        }catch(JSONException e){
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        gridView = (GridView) findViewById(R.id.gridview);
+        listView = (ListView) findViewById(R.id.list_view);
 //        getDeals(serverUrl, MainActivity.this);
         deals = new ArrayList<>();
         deals.add(new Deal("t1","http://i.imgur.com/DvpvklR.png", "d1"));
         deals.add(new Deal("t2","http://i.imgur.com/DvpvklR.png", "d2"));
         deals.add(new Deal("t3","http://i.imgur.com/DvpvklR.png", "d3"));
-
-        gridView.setAdapter(new DealAdapter(MainActivity.this, deals));
+        listView.setAdapter(new DealAdapter(MainActivity.this, deals));
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         BottomNavigationViewHelper.disableShiftMode(navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -115,6 +123,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        
+
     }
 }
