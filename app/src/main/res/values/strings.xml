@@ -4,5 +4,6 @@
     <string name="title_popular">Popular</string>
     <string name="title_recent">Recent</string>
     <string name="title_nearby">Nearby</string>
+    <string name="title_search">Search</string>
     <string name="title_upload">Upload</string>
 </resources>

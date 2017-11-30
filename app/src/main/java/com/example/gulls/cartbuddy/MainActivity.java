@@ -1,15 +1,37 @@
 package com.example.gulls.cartbuddy;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
-    private TextView mTextMessage;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+
+    final String TAG = "MAIN ACTIVITY";
+    final String serverUrl = "";
+    Intent intent;
+    GridView gridView;
+    ArrayList<Deal> deals;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -18,33 +40,81 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
+                    Toast.makeText(MainActivity.this, "Hello", Toast.LENGTH_LONG).show();
                     return true;
                 case R.id.navigation_popular:
-                    mTextMessage.setText(R.string.title_popular);
+                    intent = new Intent(MainActivity.this, PopularActivity.class);
+                    startActivity(intent);
                     return true;
                 case R.id.navigation_recent:
-                    mTextMessage.setText(R.string.title_recent);
+                    intent = new Intent(MainActivity.this, RecentActivity.class);
+                    startActivity(intent);
                     return true;
                 case R.id.navigation_nearby:
-                    mTextMessage.setText(R.string.title_nearby);
+                    intent = new Intent(MainActivity.this, NearbyActivity.class);
+                    startActivity(intent);
                     return true;
                 case R.id.navigation_upload:
-                    mTextMessage.setText(R.string.title_upload);
+                    intent = new Intent(MainActivity.this, UploadActivity.class);
+                    startActivity(intent);
                     return true;
             }
             return false;
         }
     };
 
+
+//    private void getDeals(String url, final Context context){
+//        // Instantiate the RequestQueue.
+//        RequestQueue queue = Volley.newRequestQueue(this);
+//        // Request a string response from the provided URL.
+//        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+//                new Response.Listener<String>() {
+//                    @Override
+//                    public void onResponse(String response) {
+//                        try{
+//                            JSONArray dealsJson = new JSONArray(response);
+//                            deals.clear();
+//                            for (int i = 0; i < dealsJson.length(); i++) {
+//                                JSONObject deal = dealsJson.getJSONObject(i);
+//                                Deal d = new Deal(deal.getString("title"), deal.getString("photoUrl"), deal.getString("des"));
+//                                deals.add(d);
+//                            }
+//                            gridView.setAdapter(new DealAdapter(context, deals));
+//                        }catch(JSONException e){
+//                            e.printStackTrace();
+//                        }
+//
+//                    }
+//                }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+//            }
+//        });
+//        // Add the request to the RequestQueue.
+//        queue.add(stringRequest);
+//    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        gridView = (GridView) findViewById(R.id.gridview);
+//        getDeals(serverUrl, MainActivity.this);
+        deals = new ArrayList<>();
+        deals.add(new Deal("t1","http://i.imgur.com/DvpvklR.png", "d1"));
+        deals.add(new Deal("t2","http://i.imgur.com/DvpvklR.png", "d2"));
+        deals.add(new Deal("t3","http://i.imgur.com/DvpvklR.png", "d3"));
 
-        mTextMessage = (TextView) findViewById(R.id.message);
+        gridView.setAdapter(new DealAdapter(MainActivity.this, deals));
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationViewHelper.disableShiftMode(navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
+    @Override
+    public void onClick(View view) {
+        
+    }
 }

@@ -20,4 +20,9 @@ public class Deal {
     public Deal(){
 
     }
+    public Deal(String title, String photoUrl, String description){
+        this.title = title;
+        this.photoUrl = photoUrl;
+        this.description = description;
+    }
 }
