@@ -7,6 +7,12 @@
     android:orientation="vertical"
     tools:context="com.example.gulls.cartbuddy.ViewSingleDealActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary" />
+
     <ImageView
         android:layout_marginTop="20dp"
         android:layout_gravity="center"
@@ -42,6 +48,7 @@
         android:layout_marginBottom="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
 
         <Button
             android:background="@color/colorPrimary"
