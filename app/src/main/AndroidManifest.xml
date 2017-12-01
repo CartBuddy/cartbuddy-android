@@ -23,7 +23,6 @@
         <activity android:name=".UploadActivity" />
         <activity android:name=".PopularActivity" />
         <activity android:name=".NearbyActivity" />
-        <activity android:name=".SearchActivity" />
         <activity android:name=".ViewSingleDealActivity"></activity>
     </application>
 
