@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.squareup.picasso.Picasso;
 
@@ -22,11 +23,11 @@ import com.squareup.picasso.Picasso;
 
 public class DealAdapter extends BaseAdapter {
     private Context mContext;
-    private int resource;
     private ArrayList<Deal> deals;
     private ArrayList<String> titles;
     private ArrayList<String> imageUrls;
-    private ArrayList<String> descriptions;
+    private ArrayList<String> likes;
+    private ArrayList<String> dates;
 
 
     public DealAdapter(Context c,  ArrayList<Deal> deals) {
@@ -34,11 +35,13 @@ public class DealAdapter extends BaseAdapter {
         this.deals = deals;
         titles = new ArrayList<>();
         imageUrls = new ArrayList<>();
-        descriptions = new ArrayList<>();
+        likes = new ArrayList<>();
+        dates = new ArrayList<>();
         for (Deal d : deals) {
             titles.add(d.title);
             imageUrls.add(d.photoUrl);
-            descriptions.add(d.description);
+            likes.add(String.valueOf(d.likes));
+            dates.add(d.date);
         }
     }
 
@@ -67,10 +70,12 @@ public class DealAdapter extends BaseAdapter {
         }
         TextView titleView = (TextView) grid.findViewById(R.id.list_title);
         ImageView imageView = (ImageView) grid.findViewById(R.id.list_image);
-        TextView desView = (TextView) grid.findViewById(R.id.list_des);
+        TextView voteView = (TextView) grid.findViewById(R.id.list_votes);
+        TextView dateView = (TextView) grid.findViewById(R.id.list_date);
         titleView.setText(titles.get(position));
         Picasso.with(mContext).load(imageUrls.get(position)).fit().centerCrop().into(imageView);
-        desView.setText(descriptions.get(position));
+        voteView.setText(likes.get(position));
+        dateView.setText(dates.get(position));
         return grid;
     }
 }

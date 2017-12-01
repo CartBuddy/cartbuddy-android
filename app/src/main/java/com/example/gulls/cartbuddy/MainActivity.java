@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
@@ -64,10 +65,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     intent = new Intent(MainActivity.this, PopularActivity.class);
                     startActivity(intent);
                     return true;
-                case R.id.navigation_recent:
-                    intent = new Intent(MainActivity.this, RecentActivity.class);
-                    startActivity(intent);
-                    return true;
                 case R.id.navigation_nearby:
                     intent = new Intent(MainActivity.this, NearbyActivity.class);
                     startActivity(intent);
@@ -95,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             deals.clear();
                             for (int i = 0; i < dealsJson.length(); i++) {
                                 JSONObject deal = dealsJson.getJSONObject(i);
-                                Deal d = new Deal(deal.getString("title"), deal.getString("photoUrl"), deal.getString("des"));
+                                Deal d = new Deal(deal.getString("id"), deal.getString("title"), deal.getString("photoUrl"), Integer.valueOf(deal.getString("likes")), deal.getString("date"));
                                 deals.add(d);
                             }
                             listView.setAdapter(new DealAdapter(context, deals));
@@ -125,20 +122,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
 
         listView = (ListView) findViewById(R.id.list_view);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v,
+                                    int position, long id) {
+
+                String dealId = deals.get(position).id;
+                Intent intent = new Intent(MainActivity.this, ViewSingleDealActivity.class);
+                intent.putExtra("ID", dealId);
+                startActivity(intent);
+            }
+        });
 //        getDeals(serverUrl, MainActivity.this);
         deals = new ArrayList<>();
-        deals.add(new Deal("t1", "http://i.imgur.com/DvpvklR.png", "d1"));
-        deals.add(new Deal("t2", "http://i.imgur.com/DvpvklR.png", "d2"));
-        deals.add(new Deal("t3", "http://i.imgur.com/DvpvklR.png", "d3"));
-        deals.add(new Deal("t4", "http://i.imgur.com/DvpvklR.png", "d1"));
-        deals.add(new Deal("t5", "http://i.imgur.com/DvpvklR.png", "d2"));
-        deals.add(new Deal("t6", "http://i.imgur.com/DvpvklR.png", "d3"));
-        deals.add(new Deal("t7", "http://i.imgur.com/DvpvklR.png", "d1"));
-        deals.add(new Deal("t8", "http://i.imgur.com/DvpvklR.png", "d2"));
-        deals.add(new Deal("t9", "http://i.imgur.com/DvpvklR.png", "d3"));
-        deals.add(new Deal("t10", "http://i.imgur.com/DvpvklR.png", "d1"));
-        deals.add(new Deal("t11", "http://i.imgur.com/DvpvklR.png", "d2"));
-        deals.add(new Deal("t12", "http://i.imgur.com/DvpvklR.png", "d3"));
+        deals.add(new Deal("1","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("2","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("3","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("4","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("5","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("6","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("7","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("8","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("9","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("10","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("11","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("12","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("13","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("14","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("15","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("16","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("17","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("18","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("19","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        deals.add(new Deal("20","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+
         listView.setAdapter(new DealAdapter(MainActivity.this, deals));
         searchView = (MaterialSearchView) findViewById(R.id.search_view);
 

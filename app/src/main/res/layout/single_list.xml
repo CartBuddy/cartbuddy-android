@@ -1,42 +1,61 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="100dp"
-    android:padding="6dip" >
+    android:padding="6dip">
 
 
     <ImageView
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="6dip"
         android:id="@+id/list_image"
         android:layout_width="100dp"
-        android:layout_height="100dp" />
-
-    <TextView
-        android:textColor="#000000"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:layout_toRightOf="@+id/list_image"
-        android:id="@+id/list_title"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-    </TextView>
-
-    <TextView
-        android:layout_below="@+id/list_title"
-        android:textColor="#000000"
-        android:textSize="12sp"
-        android:layout_alignTop="@+id/list_title"
-        android:id="@+id/list_des"
+        android:layout_height="100dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_toRightOf="@id/list_image"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="6dip" />
+
+    <TextView
+        android:id="@+id/list_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        >
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/list_image"
+        android:textColor="#000000"
+        android:textSize="16sp">
+
     </TextView>
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/list_title"
+        android:layout_below="@+id/list_title"
+        android:layout_toRightOf="@id/list_image"
+        android:paddingBottom="5dp">
+
+        <TextView
+            android:id="@+id/list_votes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="40dp"
+            android:drawableLeft="@drawable/ic_favorite_black_24dp"
+            android:drawablePadding="5dp"
+            android:text="0"
+            android:textColor="#000000"
+            android:textSize="15dp">
+
+        </TextView>
+
+        <TextView
+            android:id="@+id/list_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_date_range_black_24dp"
+            android:drawablePadding="5dp"
+            android:text="2017-11-10"
+            android:textColor="#000000"
+            android:textSize="15dp"></TextView>
+    </LinearLayout>
 
 </RelativeLayout>
