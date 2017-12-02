@@ -1,9 +1,12 @@
 package com.example.gulls.cartbuddy;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -25,6 +29,37 @@ public class ChecklistActivity extends AppCompatActivity {
     DbHelper dbHelper;
     ArrayAdapter<String> mAdapter;
     ListView lstTask;
+    Intent intent;
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    intent = new Intent(ChecklistActivity.this, PopularActivity.class);
+                    startActivity(intent);
+                    return true;
+                case R.id.navigation_popular:
+                    intent = new Intent(ChecklistActivity.this, PopularActivity.class);
+                    startActivity(intent);
+                    return true;
+                case R.id.navigation_nearby:
+                    intent = new Intent(ChecklistActivity.this, NearbyActivity.class);
+                    startActivity(intent);
+                    return true;
+                case R.id.navigation_profile:
+                    intent = new Intent(ChecklistActivity.this, ProfileActivity.class);
+                    startActivity(intent);
+                    return true;
+//                case R.id.navigation_checklist:
+//                    intent = new Intent(ChecklistActivity.this, ChecklistActivity.class);
+//                    startActivity(intent);
+//                    return true;
+            }
+            return false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +68,7 @@ public class ChecklistActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.checklist_toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Shop List");
+        getSupportActionBar().setTitle("Shopping List");
         toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
 
         dbHelper = new DbHelper(this);
@@ -41,6 +76,11 @@ public class ChecklistActivity extends AppCompatActivity {
         lstTask = (ListView)findViewById(R.id.lstTask);
 
         loadTaskList();
+
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationViewHelper.disableShiftMode(navigation);
+        navigation.getMenu().getItem(3).setChecked(true);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
     private void loadTaskList() {
@@ -55,14 +95,6 @@ public class ChecklistActivity extends AppCompatActivity {
             mAdapter.notifyDataSetChanged();
         }
     }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_item, menu);
-//        MenuItem item = menu.findItem(R.id.action_search);
-//        searchView.setMenuItem(item);
-//        return true;
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
