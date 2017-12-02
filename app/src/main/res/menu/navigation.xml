@@ -16,10 +16,15 @@
         android:icon="@drawable/ic_room_black_24dp"
         android:title="@string/title_nearby" />
 
+    <item
+        android:id="@+id/navigation_checklist"
+        android:icon="@drawable/ic_list_black_24dp"
+        android:title="Checklist" />
+
 
     <item
         android:icon="@drawable/ic_face_black_24dp"
-        android:id="@+id/navigation_upload"
+        android:id="@+id/navigation_profile"
         android:title="Profile" />
 
 </menu>

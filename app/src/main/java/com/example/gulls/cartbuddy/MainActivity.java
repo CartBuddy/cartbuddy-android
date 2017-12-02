@@ -29,18 +29,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.ListViewCompat;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-
-import com.miguelcatalan.materialsearchview.MaterialSearchView;
-
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -69,8 +57,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     intent = new Intent(MainActivity.this, NearbyActivity.class);
                     startActivity(intent);
                     return true;
-                case R.id.navigation_upload:
-                    intent = new Intent(MainActivity.this, UploadActivity.class);
+                case R.id.navigation_profile:
+                    intent = new Intent(MainActivity.this, ProfileActivity.class);
+                    startActivity(intent);
+                    return true;
+                case R.id.navigation_checklist:
+                    intent = new Intent(MainActivity.this, ChecklistActivity.class);
                     startActivity(intent);
                     return true;
             }

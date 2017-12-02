@@ -4,13 +4,12 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -44,8 +43,12 @@ public class PopularActivity extends MainActivity {
                     intent = new Intent(PopularActivity.this, NearbyActivity.class);
                     startActivity(intent);
                     return true;
-                case R.id.navigation_upload:
-                    intent = new Intent(PopularActivity.this, UploadActivity.class);
+                case R.id.navigation_profile:
+                    intent = new Intent(PopularActivity.this, ProfileActivity.class);
+                    startActivity(intent);
+                    return true;
+                case R.id.navigation_checklist:
+                    intent = new Intent(PopularActivity.this, ChecklistActivity.class);
                     startActivity(intent);
                     return true;
             }
@@ -133,5 +136,17 @@ public class PopularActivity extends MainActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_item, menu);
+        MenuItem item = menu.findItem(R.id.action_search);
+        searchView.setMenuItem(item);
+        return true;
+    }
+
+    @Override
+    public void onClick(View view) {
+
+    }
 
 }

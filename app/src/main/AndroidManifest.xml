@@ -20,10 +20,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".UploadActivity" />
+        <activity android:name=".ProfileActivity" />
         <activity android:name=".PopularActivity" />
         <activity android:name=".NearbyActivity" />
-        <activity android:name=".ViewSingleDealActivity"></activity>
+        <activity android:name=".ViewSingleDealActivity" />
+        <activity android:name=".ChecklistActivity" />
     </application>
 
 </manifest>
