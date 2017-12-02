@@ -12,6 +12,8 @@
         android:layout_height="wrap_content" />
 
     <Button
+        android:drawableRight="@drawable/ic_done_black_24dp"
+        android:gravity="right|center_vertical"
         android:id="@+id/btnDelete"
         android:text="DELETE"
         android:layout_alignParentEnd="true"
