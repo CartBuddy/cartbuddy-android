@@ -11,7 +11,6 @@ import java.lang.reflect.Field;
 /**
  * Created by Yuanrui on 11/29/17.
  */
-
 public class BottomNavigationViewHelper {
     @SuppressLint("RestrictedApi")
     public static void disableShiftMode(BottomNavigationView view) {

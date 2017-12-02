@@ -14,6 +14,7 @@ public class Deal {
     public String title;
     public String description;
     public int likes;
+    //createdAt
     public String date;
     public String category;
     public Location location;

@@ -32,12 +32,14 @@ import java.util.ArrayList;
 import android.graphics.Color;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-
+    final private String noImageUrl =  "https://www.built.co.uk/c.3624292/a/img/no_image_available.jpeg?resizeid=2&resizeh=350&resizew=350";
     private final String TAG = "MAIN";
-    final String serverUrl = "";
+    final String serverUrl = "https://cartbuddy.benfu.me/deals";
+//    final String serverUrl = "https://cartbuddy.benfu.me/deals?sort=recent";
+
     Intent intent;
     ListView listView;
-    ArrayList<Deal> deals;
+    ArrayList<Deal> deals = new ArrayList<>();
     MaterialSearchView searchView;
 
 
@@ -85,7 +87,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             deals.clear();
                             for (int i = 0; i < dealsJson.length(); i++) {
                                 JSONObject deal = dealsJson.getJSONObject(i);
-                                Deal d = new Deal(deal.getString("id"), deal.getString("title"), deal.getString("photoUrl"), Integer.valueOf(deal.getString("likes")), deal.getString("date"));
+                                Deal d = new Deal(deal.getString("id"), deal.getString("title"), deal.getString("photoUrls"), Integer.valueOf(deal.getString("numLikes")), deal.getString("createdAt"));
+                                if (d.title.equals("null")) {
+                                    d.title = "Great deal!";
+                                }
+                                if (d.photoUrl.equals("null")) {
+                                    d.photoUrl = noImageUrl;
+                                }
+                                if (d.date.length() > 10) {
+                                    d.date = d.date.substring(0, 10);
+                                }
                                 deals.add(d);
                             }
                             listView.setAdapter(new DealAdapter(context, deals));
@@ -135,29 +146,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent);
             }
         });
-//        getDeals(serverUrl, MainActivity.this);
-        deals = new ArrayList<>();
-        deals.add(new Deal("1","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("2","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("3","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("4","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("5","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("6","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("7","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("8","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("9","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("10","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("11","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("12","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("13","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("14","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("15","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("16","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("17","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("18","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("19","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("20","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-
+        getDeals(serverUrl, MainActivity.this);
         listView.setAdapter(new DealAdapter(MainActivity.this, deals));
         searchView = (MaterialSearchView) findViewById(R.id.search_view);
 
