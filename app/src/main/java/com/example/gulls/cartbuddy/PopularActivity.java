@@ -20,10 +20,10 @@ import java.util.ArrayList;
 // rank with votes
 public class PopularActivity extends MainActivity {
     private final String TAG = "POPULAR";
-    final String serverUrl = "";
+    final String serverUrl = "https://cartbuddy.benfu.me/deals?sort=popular";
     Intent intent;
     ListView listView;
-    ArrayList<Deal> deals;
+    ArrayList<Deal> deals = new ArrayList<>();
     MaterialSearchView searchView;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -32,9 +32,6 @@ public class PopularActivity extends MainActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_popular:
-                    Toast.makeText(PopularActivity.this, "Hello", Toast.LENGTH_LONG).show();
-                    return true;
                 case R.id.navigation_home:
                     intent = new Intent(PopularActivity.this, MainActivity.class);
                     startActivity(intent);
@@ -77,13 +74,13 @@ public class PopularActivity extends MainActivity {
                 startActivity(intent);
             }
         });
-//        getDeals(serverUrl, MainActivity.this);
-        deals = new ArrayList<>();
-        deals.add(new Deal("1","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("2","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("3","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("4","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("5","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+        getDeals(serverUrl, PopularActivity.this);
+//        deals = new ArrayList<>();
+//        deals.add(new Deal("1","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+//        deals.add(new Deal("2","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+//        deals.add(new Deal("3","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+//        deals.add(new Deal("4","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
+//        deals.add(new Deal("5","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
 
         listView.setAdapter(new DealAdapter(PopularActivity.this, deals));
         searchView = (MaterialSearchView) findViewById(R.id.search_view);

@@ -34,8 +34,7 @@ import android.graphics.Color;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     final private String noImageUrl =  "https://www.built.co.uk/c.3624292/a/img/no_image_available.jpeg?resizeid=2&resizeh=350&resizew=350";
     private final String TAG = "MAIN";
-    final String serverUrl = "https://cartbuddy.benfu.me/deals";
-//    final String serverUrl = "https://cartbuddy.benfu.me/deals?sort=recent";
+    final String serverUrl = "https://cartbuddy.benfu.me/deals?sort=recent";
 
     Intent intent;
     ListView listView;
@@ -49,9 +48,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    Toast.makeText(MainActivity.this, "Hello", Toast.LENGTH_LONG).show();
-                    return true;
                 case R.id.navigation_popular:
                     intent = new Intent(MainActivity.this, PopularActivity.class);
                     startActivity(intent);
@@ -87,13 +83,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             deals.clear();
                             for (int i = 0; i < dealsJson.length(); i++) {
                                 JSONObject deal = dealsJson.getJSONObject(i);
-                                Deal d = new Deal(deal.getString("id"), deal.getString("title"), deal.getString("photoUrls"), Integer.valueOf(deal.getString("numLikes")), deal.getString("createdAt"));
-                                if (d.title.equals("null")) {
+                                Deal d = new Deal();
+                                d.id = deal.getString("id");
+                                if(deal.getString("title").equals("null")) {
                                     d.title = "Great deal!";
+                                }else {
+                                    d.title = deal.getString("title");
                                 }
-                                if (d.photoUrl.equals("null")) {
+                                if (deal.getString("photoUrls").equals("null")){
                                     d.photoUrl = noImageUrl;
+                                }else {
+                                    d.photoUrl = deal.getJSONArray("photoUrls").get(0).toString();
                                 }
+                                d.likes = Integer.valueOf(deal.getString("numLikes"));
+                                d.date = deal.getString("createdAt");
                                 if (d.date.length() > 10) {
                                     d.date = d.date.substring(0, 10);
                                 }

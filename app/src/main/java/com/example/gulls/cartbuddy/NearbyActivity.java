@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 public class NearbyActivity extends MainActivity {
     private final String TAG = "NEARBY";
-    final String serverUrl = "";
+    final String serverUrl = "https://cartbuddy.benfu.me/deals";
     Intent intent;
     ListView listView;
     ArrayList<Deal> deals;
