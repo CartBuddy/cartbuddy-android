@@ -25,6 +25,7 @@
         <activity android:name=".NearbyActivity" />
         <activity android:name=".ViewSingleDealActivity" />
         <activity android:name=".ChecklistActivity" />
+        <activity android:name=".UploadActivity"></activity>
     </application>
 
 </manifest>
