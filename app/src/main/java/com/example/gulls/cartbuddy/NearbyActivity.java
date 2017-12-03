@@ -116,6 +116,8 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
                                 //???
                                 String[] location = deal.getString("location").split(",");
                                 if (location.length == 2){
+                                    d.lat = Double.valueOf(location[0]);
+                                    d.lon = Double.valueOf(location[1]);
                                     double distance = distance(Double.valueOf(location[0]), Double.valueOf(location[1]), lat, lon);
                                     d.distance = distance;
                                 }

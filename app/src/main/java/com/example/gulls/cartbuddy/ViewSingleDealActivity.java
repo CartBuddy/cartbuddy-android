@@ -56,7 +56,6 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
         toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
         Intent intent = getIntent();
         if (intent != null) {
-            Toast.makeText(ViewSingleDealActivity.this, intent.getStringExtra("ID"), Toast.LENGTH_LONG).show();
             getDealbyId(serverUrl + intent.getStringExtra("ID"));
         }
         findViewById(R.id.vote_btn).setOnClickListener(this);
@@ -163,6 +162,11 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
         Button voteButton = (Button) findViewById(R.id.vote_btn);
         voteButton.setText(String.valueOf(deal.likes));
         //???
+//        /id/likes
+//                "patch"
+//        {
+//            "mode":"++"
+//        }
     }
     @Override
     public void onClick(View view) {
