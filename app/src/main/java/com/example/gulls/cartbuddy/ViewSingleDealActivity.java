@@ -24,15 +24,31 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
+import javax.inject.Inject;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+
 public class ViewSingleDealActivity extends AppCompatActivity implements View.OnClickListener{
+    OkHttpClient client = HttpClient.getClient();
+
     final private String noImageUrl =  "https://www.built.co.uk/c.3624292/a/img/no_image_available.jpeg?resizeid=2&resizeh=350&resizew=350";
     private final String TAG = "POPULAR";
     final String serverUrl = "https://cartbuddy.benfu.me/deals/";
+
+    private String dealUrl = "";
     Deal deal = new Deal();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_view_single_deal);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -47,7 +63,10 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
 
     }
 
+
+
     private void getDealbyId(String url) {
+        dealUrl = url;
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
         // Request a string response from the provided URL.
@@ -115,7 +134,32 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
     }
     private void voteBtnHandler(){
         //????
-        deal.likes += 1;
+        String patchBody = "{ \"mode\": \"++\" }";
+        okhttp3.Request request = new okhttp3.Request.Builder()
+                .url(dealUrl + "/likes")
+                .patch(RequestBody.create(MediaType.parse("application/json"), patchBody))
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                try (
+                    ResponseBody responseBody = response.body()
+                ) {
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    String numLikesNewStr = responseBody.string();
+                    int numLikesNew = Integer.parseInt(numLikesNewStr);
+                    deal.likes = numLikesNew;
+                }
+            }
+        });
         Button voteButton = (Button) findViewById(R.id.vote_btn);
         voteButton.setText(String.valueOf(deal.likes));
         //???

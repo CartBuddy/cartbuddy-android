@@ -49,7 +49,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         // the GoogleSignInAccount will be non-null.
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if (account != null) {
-            redirectToHome();
+            redirectToHome(account);
         }
 //        updateUI(account);
     }
@@ -85,9 +85,8 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-
             // Signed in successfully, show authenticated UI.
-            redirectToHome();
+            redirectToHome(account);
 
 //            updateUI(account);
         } catch (ApiException e) {
@@ -98,7 +97,12 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void redirectToHome() {
+    /**
+     * Handle app sign in.
+     * We need to check if the user exists in the database, and if not
+     * we need to create one.
+     */
+    private void redirectToHome(GoogleSignInAccount account) {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }

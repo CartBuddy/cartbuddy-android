@@ -3,9 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://D:\Ben\Projects\College\Grad\2017_Fall\EE_382V\final-project\cartbuddy-android\app\app.iml" filepath="D:\Ben\Projects\College\Grad\2017_Fall\EE_382V\final-project\cartbuddy-android\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/cartbuddy-android.iml" filepath="$PROJECT_DIR$/cartbuddy-android.iml" />
-      <module fileurl="file://D:\Ben\Projects\College\Grad\2017_Fall\EE_382V\final-project\cartbuddy-android\cartbuddy-android.iml" filepath="D:\Ben\Projects\College\Grad\2017_Fall\EE_382V\final-project\cartbuddy-android\cartbuddy-android.iml" />
     </modules>
   </component>
 </project>
