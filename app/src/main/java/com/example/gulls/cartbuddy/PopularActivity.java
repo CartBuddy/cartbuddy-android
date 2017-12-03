@@ -28,6 +28,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import android.graphics.Color;
 
@@ -104,6 +106,11 @@ public class PopularActivity extends AppCompatActivity implements View.OnClickLi
                                 }
                                 deals.add(d);
                             }
+                            Collections.sort(deals, new Comparator<Deal>() {
+                                public int compare(Deal d1, Deal d2) {
+                                    return d2.likes - d1.likes;
+                                }
+                            });
                             listView.setAdapter(new DealAdapter(PopularActivity.this, deals));
                         } catch (JSONException e) {
                             e.printStackTrace();
