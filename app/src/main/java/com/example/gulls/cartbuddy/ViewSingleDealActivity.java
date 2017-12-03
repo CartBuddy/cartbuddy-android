@@ -156,11 +156,18 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
                     String numLikesNewStr = responseBody.string();
                     int numLikesNew = Integer.parseInt(numLikesNewStr);
                     deal.likes = numLikesNew;
+
+                    ViewSingleDealActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateUi();
+                        }
+                    });
+
                 }
             }
         });
-        Button voteButton = (Button) findViewById(R.id.vote_btn);
-        voteButton.setText(String.valueOf(deal.likes));
+
         //???
 //        /id/likes
 //                "patch"
@@ -168,6 +175,12 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
 //            "mode":"++"
 //        }
     }
+
+    public void updateUi() {
+        Button voteButton = (Button) findViewById(R.id.vote_btn);
+        voteButton.setText(String.valueOf(deal.likes));
+    }
+
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.vote_btn) {

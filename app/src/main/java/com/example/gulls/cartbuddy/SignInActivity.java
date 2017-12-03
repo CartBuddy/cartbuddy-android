@@ -17,9 +17,14 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 3;
+
+    private OkHttpClient httpClient = HttpClient.getClient();
 
     private GoogleSignInClient googleSignInClient;
 
@@ -103,6 +108,9 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
      * we need to create one.
      */
     private void redirectToHome(GoogleSignInAccount account) {
+//        Request request = new Request.Builder()
+//                .url("*")
+//                .build();
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
