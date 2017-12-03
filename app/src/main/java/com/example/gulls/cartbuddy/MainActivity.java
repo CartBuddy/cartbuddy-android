@@ -154,7 +154,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 //If closed Search View , lstView will return default
                 listView = (ListView) findViewById(R.id.list_view);
-                Toast.makeText(MainActivity.this, "ssss"+ deals.size(), Toast.LENGTH_LONG).show();
                 listView.setAdapter(new DealAdapter(MainActivity.this, deals));
             }
         });
@@ -169,7 +168,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public boolean onQueryTextChange(String newText) {
                 if (newText != null && !newText.isEmpty()) {
                     ArrayList<Deal> lstFound = new ArrayList<>();
-                    Toast.makeText(MainActivity.this, "tttt"+ deals.size(), Toast.LENGTH_LONG).show();
                     for (Deal item : deals) {
                         if (item.title.toLowerCase().contains(newText.toLowerCase()))
                             lstFound.add(item);
