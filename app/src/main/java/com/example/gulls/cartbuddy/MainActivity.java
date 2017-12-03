@@ -36,10 +36,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final String TAG = "MAIN";
     final String serverUrl = "https://cartbuddy.benfu.me/deals?sort=recent";
 
-    Intent intent;
-    ListView listView;
-    ArrayList<Deal> deals = new ArrayList<>();
-    MaterialSearchView searchView;
+    private Intent intent;
+    private ListView listView;
+    private ArrayList<Deal> deals = new ArrayList<>();
+    private MaterialSearchView searchView;
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
 
-    void getDeals(String url, final Context context) {
+    private void getDeals(String url) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
         // Request a string response from the provided URL.
@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onResponse(String response) {
                         try {
                             JSONArray dealsJson = new JSONArray(response);
-                            deals.clear();
                             for (int i = 0; i < dealsJson.length(); i++) {
                                 JSONObject deal = dealsJson.getJSONObject(i);
                                 Deal d = new Deal();
@@ -102,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }
                                 deals.add(d);
                             }
-                            listView.setAdapter(new DealAdapter(context, deals));
+                            listView.setAdapter(new DealAdapter(MainActivity.this, deals));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -123,36 +122,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("CartBuddy");
-        toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent uploadIntent = new Intent(MainActivity.this, UploadActivity.class);
-                startActivity(uploadIntent);
-            }
-        });
-
-
+        //all deals
         listView = (ListView) findViewById(R.id.list_view);
+        listView.setAdapter(new DealAdapter(MainActivity.this, deals));
+        getDeals(serverUrl);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-
                 String dealId = deals.get(position).id;
                 Intent intent = new Intent(MainActivity.this, ViewSingleDealActivity.class);
                 intent.putExtra("ID", dealId);
                 startActivity(intent);
             }
         });
-        getDeals(serverUrl, MainActivity.this);
-        listView.setAdapter(new DealAdapter(MainActivity.this, deals));
-        searchView = (MaterialSearchView) findViewById(R.id.search_view);
 
+        //toolbar & search
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("CartBuddy");
+        toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
+
+        searchView = (MaterialSearchView) findViewById(R.id.search_view);
         searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
             @Override
             public void onSearchViewShown() {
@@ -164,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 //If closed Search View , lstView will return default
                 listView = (ListView) findViewById(R.id.list_view);
+                Toast.makeText(MainActivity.this, "ssss"+ deals.size(), Toast.LENGTH_LONG).show();
                 listView.setAdapter(new DealAdapter(MainActivity.this, deals));
             }
         });
@@ -178,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public boolean onQueryTextChange(String newText) {
                 if (newText != null && !newText.isEmpty()) {
                     ArrayList<Deal> lstFound = new ArrayList<>();
+                    Toast.makeText(MainActivity.this, "tttt"+ deals.size(), Toast.LENGTH_LONG).show();
                     for (Deal item : deals) {
                         if (item.title.toLowerCase().contains(newText.toLowerCase()))
                             lstFound.add(item);
@@ -194,6 +186,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         });
 
+        //floating button
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent uploadIntent = new Intent(MainActivity.this, UploadActivity.class);
+                startActivity(uploadIntent);
+            }
+        });
+
+        //navigation
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         BottomNavigationViewHelper.disableShiftMode(navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);

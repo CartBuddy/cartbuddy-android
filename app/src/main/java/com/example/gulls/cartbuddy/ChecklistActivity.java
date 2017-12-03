@@ -37,7 +37,7 @@ public class ChecklistActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    intent = new Intent(ChecklistActivity.this, PopularActivity.class);
+                    intent = new Intent(ChecklistActivity.this, MainActivity.class);
                     startActivity(intent);
                     return true;
                 case R.id.navigation_popular:
@@ -52,10 +52,6 @@ public class ChecklistActivity extends AppCompatActivity {
                     intent = new Intent(ChecklistActivity.this, ProfileActivity.class);
                     startActivity(intent);
                     return true;
-//                case R.id.navigation_checklist:
-//                    intent = new Intent(ChecklistActivity.this, ChecklistActivity.class);
-//                    startActivity(intent);
-//                    return true;
             }
             return false;
         }
