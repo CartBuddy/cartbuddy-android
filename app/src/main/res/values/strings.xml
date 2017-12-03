@@ -7,4 +7,5 @@
     <string name="title_search">Search</string>
     <string name="title_upload">Upload</string>
     <string name="title_activity_sign_in">CartBuddy</string>
+    <string name="base_url">https://cartbuddy.benfu.me</string>
 </resources>

@@ -41,6 +41,8 @@ dependencies {
 
     // http client
     implementation 'com.squareup.okhttp3:okhttp:3.9.1'
+    implementation 'com.squareup.moshi:moshi:1.5.0'
+    implementation 'com.squareup.moshi:moshi-adapters:1.5.0'
 
     // dependency injection
     implementation 'com.google.dagger:dagger:2.13'

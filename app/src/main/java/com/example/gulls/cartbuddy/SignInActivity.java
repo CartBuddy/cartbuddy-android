@@ -16,9 +16,22 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Rfc3339DateJsonAdapter;
+import com.squareup.moshi.Types;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.Date;
+import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "SignInActivity";
@@ -107,12 +120,54 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
      * We need to check if the user exists in the database, and if not
      * we need to create one.
      */
-    private void redirectToHome(GoogleSignInAccount account) {
-//        Request request = new Request.Builder()
-//                .url("*")
-//                .build();
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+    private void redirectToHome(final GoogleSignInAccount account) {
+        Request request = new Request.Builder()
+                .url(getString(R.string.base_url) + "/users?email=" + account.getEmail())
+                .build();
+
+        httpClient.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+                    String res = responseBody.string();
+
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            account.getEmail();
+//                        }
+//                    });
+                    // create a new user
+                    Log.d(TAG, res);
+                    if (res.equals("[]")) {
+                        Intent intent = new Intent(SignInActivity.this, CreateUserActivity.class);
+                        intent.putExtra("email", account.getEmail());
+                        startActivity(intent);
+                    }
+                    // get the existing user
+                    else {
+                        Moshi moshi = new Moshi.Builder()
+                                .add(Date.class, new Rfc3339DateJsonAdapter())
+                                .build();
+                        Type type = Types.newParameterizedType(List.class, User.class);
+                        final JsonAdapter<List<User>> jsonAdapter = moshi.adapter(type);
+                        User user = jsonAdapter.fromJson(res).get(0);
+                        UserSession.getSession().setActiveUser(user);
+                        Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                        startActivity(intent);
+                    }
+                }
+            }
+        });
+
     }
 
 }
