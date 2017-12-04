@@ -14,9 +14,12 @@ public class Deal {
     public String title;
     public String description;
     public int likes;
+    //createdAt
     public String date;
     public String category;
-    public Location location;
+    public double lat = 0.0;
+    public double lon = 0.0;
+    public double distance = 0.0;
     public Deal(){
 
     }

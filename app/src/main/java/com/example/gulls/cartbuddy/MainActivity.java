@@ -3,10 +3,12 @@ package com.example.gulls.cartbuddy;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,13 +34,14 @@ import java.util.ArrayList;
 import android.graphics.Color;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-
+    final private String noImageUrl =  "https://www.built.co.uk/c.3624292/a/img/no_image_available.jpeg?resizeid=2&resizeh=350&resizew=350";
     private final String TAG = "MAIN";
-    final String serverUrl = "";
-    Intent intent;
-    ListView listView;
-    ArrayList<Deal> deals;
-    MaterialSearchView searchView;
+    final String serverUrl = "https://cartbuddy.benfu.me/deals?sort=recent";
+
+    private Intent intent;
+    private ListView listView;
+    private ArrayList<Deal> deals = new ArrayList<>();
+    private MaterialSearchView searchView;
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -47,9 +50,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    Toast.makeText(MainActivity.this, "Hello", Toast.LENGTH_LONG).show();
-                    return true;
                 case R.id.navigation_popular:
                     intent = new Intent(MainActivity.this, PopularActivity.class);
                     startActivity(intent);
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
 
-    void getDeals(String url, final Context context) {
+    private void getDeals(String url) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
         // Request a string response from the provided URL.
@@ -82,13 +82,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onResponse(String response) {
                         try {
                             JSONArray dealsJson = new JSONArray(response);
-                            deals.clear();
                             for (int i = 0; i < dealsJson.length(); i++) {
                                 JSONObject deal = dealsJson.getJSONObject(i);
-                                Deal d = new Deal(deal.getString("id"), deal.getString("title"), deal.getString("photoUrl"), Integer.valueOf(deal.getString("likes")), deal.getString("date"));
+                                Deal d = new Deal();
+                                d.id = deal.getString("id");
+                                if(deal.getString("title").equals("null")) {
+                                    d.title = "Great deal!";
+                                }else {
+                                    d.title = deal.getString("title");
+                                }
+                                if (deal.getString("photoUrls").equals("null")){
+                                    d.photoUrl = noImageUrl;
+                                }else {
+                                    d.photoUrl = deal.getJSONArray("photoUrls").get(0).toString();
+                                }
+                                d.likes = Integer.valueOf(deal.getString("numLikes"));
+                                d.date = deal.getString("createdAt");
+                                if (d.date.length() > 10) {
+                                    d.date = d.date.substring(0, 10);
+                                }
                                 deals.add(d);
                             }
-                            listView.setAdapter(new DealAdapter(context, deals));
+                            listView.setAdapter(new DealAdapter(MainActivity.this, deals));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -103,64 +118,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == MaterialSearchView.REQUEST_VOICE && resultCode == RESULT_OK) {
+            ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            if (matches != null && matches.size() > 0) {
+                String searchWrd = matches.get(0);
+                if (!TextUtils.isEmpty(searchWrd)) {
+                    searchView.setQuery(searchWrd, false);
+                }
+            }
 
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("CartBuddy");
-        toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent uploadIntent = new Intent(MainActivity.this, UploadActivity.class);
-                startActivity(uploadIntent);
-            }
-        });
-
-
+        //all deals
         listView = (ListView) findViewById(R.id.list_view);
+        listView.setAdapter(new DealAdapter(MainActivity.this, deals));
+        getDeals(serverUrl);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-
                 String dealId = deals.get(position).id;
                 Intent intent = new Intent(MainActivity.this, ViewSingleDealActivity.class);
                 intent.putExtra("ID", dealId);
                 startActivity(intent);
             }
         });
-//        getDeals(serverUrl, MainActivity.this);
-        deals = new ArrayList<>();
-        deals.add(new Deal("1","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("2","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("3","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("4","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("5","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("6","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("7","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("8","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("9","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("10","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("11","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("12","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("13","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("14","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("15","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("16","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("17","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("18","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("19","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
-        deals.add(new Deal("20","t1", "http://i.imgur.com/DvpvklR.png", 10, "2017-1-1"));
 
-        listView.setAdapter(new DealAdapter(MainActivity.this, deals));
+        //toolbar & search
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("CartBuddy");
+        toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
+
         searchView = (MaterialSearchView) findViewById(R.id.search_view);
-
         searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
             @Override
             public void onSearchViewShown() {
@@ -202,6 +200,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         });
 
+        //floating button
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent uploadIntent = new Intent(MainActivity.this, CreateDealActivity.class);
+                startActivity(uploadIntent);
+            }
+        });
+
+        //navigation
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         BottomNavigationViewHelper.disableShiftMode(navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);

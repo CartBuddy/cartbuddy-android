@@ -24,15 +24,31 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ViewSingleDealActivity extends AppCompatActivity implements View.OnClickListener{
+import java.io.IOException;
 
+import javax.inject.Inject;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+
+public class ViewSingleDealActivity extends AppCompatActivity implements View.OnClickListener{
+    OkHttpClient client = HttpClient.getClient();
+
+    final private String noImageUrl =  "https://www.built.co.uk/c.3624292/a/img/no_image_available.jpeg?resizeid=2&resizeh=350&resizew=350";
     private final String TAG = "POPULAR";
-    final String serverUrl = "";
+    final String serverUrl = "https://cartbuddy.benfu.me/deals/";
+
+    private String dealUrl = "";
     Deal deal = new Deal();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_view_single_deal);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -41,63 +57,130 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
         Intent intent = getIntent();
         if (intent != null) {
             getDealbyId(serverUrl + intent.getStringExtra("ID"));
-            ImageView imageView = (ImageView) findViewById(R.id.image);
-            Picasso.with(ViewSingleDealActivity.this).load(deal.photoUrl).fit().centerCrop().into(imageView);
-            TextView titleView = (TextView)findViewById(R.id.deal_title);
-            titleView.setText(deal.title);
-            Toast.makeText(ViewSingleDealActivity.this, titleView.getText(), Toast.LENGTH_LONG).show();
-            TextView desView = (TextView)findViewById(R.id.des);
-            desView.setText(deal.description);
-            Button voteButton = (Button) findViewById(R.id.vote_btn);
-            voteButton.setText(String.valueOf(deal.likes));
-            TextView dateView = (TextView)findViewById(R.id.date);
-            dateView.setText(deal.date);
-            findViewById(R.id.vote_btn).setOnClickListener(this);
         }
+        findViewById(R.id.vote_btn).setOnClickListener(this);
+
     }
+
+
 
     private void getDealbyId(String url) {
-//        // Instantiate the RequestQueue.
-//        RequestQueue queue = Volley.newRequestQueue(this);
-//        // Request a string response from the provided URL.
-//        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-//                new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response) {
-//                        try {
-//                            JSONArray tmp = new JSONArray(response);
-//                            JSONObject dealJson = tmp.getJSONObject(0);
-//                            deal.photoUrl = dealJson.getString("imageUrl");
-//                            deal.title = dealJson.getString("title");
-//                            deal.description = dealJson.getString("des");
-//                            deal.date = dealJson.getString("date");
-//                            deal.likes = Integer.valueOf(dealJson.getString("likes"))
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Toast.makeText(ViewSingleDealActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
-//            }
-//        });
-//        // Add the request to the RequestQueue.
-//        queue.add(stringRequest);
+        dealUrl = url;
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject dealJson = new JSONObject(response);
+                            deal.id = dealJson.getString("id");
 
-        //mock data
-        deal.photoUrl = "http://i.imgur.com/DvpvklR.png";
-        deal.title = "test";
-        deal.description = "hahaha";
-        deal.date = "2017-1-1";
-        deal.likes = 1;
+                            //title
+                            if(dealJson.getString("title").equals("null")) {
+                                deal.title = "Great deal!";
+                            }else {
+                                deal.title = dealJson.getString("title");
+                            }
+
+                            TextView titleView = (TextView)findViewById(R.id.deal_title);
+                            titleView.setText(deal.title);
+
+                            //photo
+                            if (dealJson.getString("photoUrls").equals("null")){
+                                deal.photoUrl = noImageUrl;
+                            }else {
+                                deal.photoUrl = dealJson.getJSONArray("photoUrls").get(0).toString();
+                            }
+                            ImageView imageView = (ImageView) findViewById(R.id.image);
+                            Picasso.with(ViewSingleDealActivity.this).load(deal.photoUrl).fit().centerCrop().into(imageView);
+
+                            //des
+                            if(dealJson.getString("description").equals("null")) {
+                                deal.description = "No further description";
+                            }else {
+                                deal.description = dealJson.getString("description");
+                            }
+                            TextView desView = (TextView) findViewById(R.id.des);
+                            desView.setText(deal.description);
+
+                            //likes
+                            deal.likes = Integer.valueOf(dealJson.getString("numLikes"));
+                            Button voteButton = (Button) findViewById(R.id.vote_btn);
+                            voteButton.setText(String.valueOf(deal.likes));
+
+                            //date
+                            deal.date = dealJson.getString("createdAt");
+                            if (deal.date.length() > 10) {
+                                deal.date = deal.date.substring(0, 10);
+                            }
+                            TextView dateView = (TextView)findViewById(R.id.date);
+                            dateView.setText(deal.date);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(ViewSingleDealActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
     private void voteBtnHandler(){
-        // need to post new likes
-        deal.likes += 1;
+        //????
+        String patchBody = "{ \"mode\": \"++\" }";
+        okhttp3.Request request = new okhttp3.Request.Builder()
+                .url(dealUrl + "/likes")
+                .patch(RequestBody.create(MediaType.parse("application/json"), patchBody))
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                try (
+                    ResponseBody responseBody = response.body()
+                ) {
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    String numLikesNewStr = responseBody.string();
+                    int numLikesNew = Integer.parseInt(numLikesNewStr);
+                    deal.likes = numLikesNew;
+
+                    ViewSingleDealActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateUi();
+                        }
+                    });
+
+                }
+            }
+        });
+
+        //???
+//        /id/likes
+//                "patch"
+//        {
+//            "mode":"++"
+//        }
+    }
+
+    public void updateUi() {
         Button voteButton = (Button) findViewById(R.id.vote_btn);
         voteButton.setText(String.valueOf(deal.likes));
     }
+
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.vote_btn) {
