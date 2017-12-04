@@ -5,14 +5,20 @@ package com.example.gulls.cartbuddy;
  */
 import android.location.Location;
 
+import com.squareup.moshi.Json;
+
 import java.util.Date;
 
 public class Deal {
     public String id;
     public String user;
+    @Json(name = "photoUrls")
+    public String[] photoUrls;
+
     public String photoUrl;
     public String title;
     public String description;
+    @Json(name = "numLikes")
     public int likes;
     //createdAt
     public String date;

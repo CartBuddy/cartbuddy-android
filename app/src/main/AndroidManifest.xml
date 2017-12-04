@@ -42,6 +42,10 @@
         </activity>
         <activity android:name=".CreateDealActivity" />
         <activity android:name=".CreateUserActivity"></activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBwkHPUfEgfBZR794YRQwDOgdeMqXPT7Wc"/>
     </application>
 
 </manifest>
