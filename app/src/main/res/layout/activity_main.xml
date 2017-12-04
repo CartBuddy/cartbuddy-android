@@ -27,13 +27,14 @@
 
 
     <ListView
-        android:paddingBottom="60dp"
         android:id="@+id/list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:divider="#806326"
         android:dividerHeight="1dp"
+        android:paddingBottom="60dp"
         android:scrollbars="vertical"
         android:stretchMode="columnWidth" />
 
@@ -49,16 +50,15 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
-        app:backgroundTint="@color/colorPrimary"
-        android:tint="@android:color/white"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:layout_alignParentRight="true"
-        android:layout_above="@+id/navigation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/navigation"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="14dp"
         android:src="@android:drawable/ic_input_add"
+        android:tint="@android:color/white"
+        app:backgroundTint="@color/colorPrimary"
         app:elevation="6dp"
-        app:pressedTranslationZ="12dp"/>
+        app:pressedTranslationZ="12dp" />
 
 </RelativeLayout>

@@ -6,4 +6,52 @@
     android:layout_height="match_parent"
     tools:context="com.example.gulls.cartbuddy.UploadActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"></LinearLayout>
+
+    <TextView
+        android:id="@+id/upload_title"
+        android:layout_width="64dp"
+        android:layout_height="32dp"
+        android:text="Upload"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        tools:layout_editor_absoluteX="161dp"
+        tools:layout_editor_absoluteY="16dp"
+        tools:text="Upload" />
+
+    <Button
+        android:id="@+id/choose_from_lib_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Choose from the Phone"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="81dp" />
+
+    <Button
+        android:id="@+id/use_camera_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Take a Picture"
+        app:layout_constraintBaseline_toBaselineOf="@+id/choose_from_lib_btn"
+        tools:layout_editor_absoluteX="244dp" />
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="326dp"
+        android:layout_height="118dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Comments with the Picture to share..."
+        tools:layout_editor_absoluteX="29dp"
+        tools:layout_editor_absoluteY="168dp" />
+
+    <Button
+        android:id="@+id/upload_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Share"
+        tools:layout_editor_absoluteX="148dp"
+        tools:layout_editor_absoluteY="344dp" />
 </android.support.constraint.ConstraintLayout>

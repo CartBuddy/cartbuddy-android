@@ -5,15 +5,17 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.StrictMode;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -22,9 +24,6 @@ import com.kbeanie.multipicker.api.ImagePicker;
 import com.kbeanie.multipicker.api.Picker;
 import com.kbeanie.multipicker.api.callbacks.ImagePickerCallback;
 import com.kbeanie.multipicker.api.entity.ChosenImage;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +36,11 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class UploadActivity extends AppCompatActivity implements ImagePickerCallback {
+/**
+ * Created by wentingsong on 2017/12/1.
+ */
+
+public class ImagePickerFragment extends Fragment implements ImagePickerCallback {
     private static String TAG = "ImagePickerFragment";
     private static int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 2;
     private static String BASE_URL = "http://connexus-gulls.appspot.com/api";
@@ -56,21 +59,19 @@ public class UploadActivity extends AppCompatActivity implements ImagePickerCall
 
     private String pickerPath;
 
-    private String tags;
 
-
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_upload);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_image_picker, null);
 
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED
                 ) {
 
-            ActivityCompat.requestPermissions(this,
+            ActivityCompat.requestPermissions(getActivity(),
                     new String[]{
                             Manifest.permission.READ_EXTERNAL_STORAGE,
                             android.Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -81,44 +82,36 @@ public class UploadActivity extends AppCompatActivity implements ImagePickerCall
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
+        streamId = "ahBzfmNvbm5leHVzLWd1bGxzchMLEgZTdHJlYW0YgICAgPjChAoM";
 
-        Intent intent = getIntent();
-        if (intent != null) {
-            String streamName = intent.getStringExtra("UploadImage");
-            Log.d(TAG, streamName);
-            OkHttpClient client = new OkHttpClient();
-            Request request = new Request.Builder()
-                    .url(BASE_URL + "/streams?name=" + streamName)
-                    .build();
-            try (Response response = client.newCall(request).execute()){
-                JSONArray jsonArray = new JSONArray(response.body().string());
-                JSONObject jsonObject = jsonArray.getJSONObject(0);
-                String id = jsonObject.getString("id");
-                Log.d(TAG, id);
-                streamId = id;
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-        }
-        btPickImageSingle = (Button) findViewById(R.id.btGallerySingleImage);
+//        lvResults = (ListView) view.findViewById(R.id.lvResults);
+        btPickImageSingle = (Button) view.findViewById(R.id.btGallerySingleImage);
         btPickImageSingle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pickImageSingle();
             }
         });
+//        btPickImageMultiple = (Button) view.findViewById(R.id.btGalleryMultipleImages);
+//        btPickImageMultiple.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                pickImageMultiple();
+//            }
+//        });
+        btTakePicture = (Button) view.findViewById(R.id.btCameraImage);
+        btTakePicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                takePicture();
+            }
+        });
 
-        btUpload = (Button) findViewById(R.id.upload_btn);
+        btUpload = (Button) view.findViewById(R.id.upload_btn);
         btUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Uploading...");
-                // get tags
-                tags = ((EditText)findViewById(R.id.tags)).getText().toString();
-                Log.d(TAG, "Tags: " + tags);
                 OkHttpClient client = new OkHttpClient();
                 Request getUploadUrlRequest = new Request.Builder()
                         .url(BASE_URL + "/streams/" + streamId + "/photos/upload")
@@ -138,18 +131,17 @@ public class UploadActivity extends AppCompatActivity implements ImagePickerCall
 
                     MediaType formMedia = MediaType.parse("multipart/form-data; charset=utf-8");
                     Log.d(TAG, uri.toString());
-//                    String type = getContentResolver().getType(Uri.parse(chosenImage.getQueryUri()));
-//                    Log.d(TAG, type);
-//                    int count = getContentResolver().query(Uri.parse(chosenImage.getQueryUri()), null, null, null, null).getCount();
-//                    Log.d(TAG, String.valueOf(count));
-                    InputStream is = getContentResolver().openInputStream(Uri.parse(chosenImage.getQueryUri()));
+                    String type = getActivity().getContentResolver().getType(Uri.parse(chosenImage.getQueryUri()));
+                    Log.d(TAG, type);
+                    int count = getActivity().getContentResolver().query(Uri.parse(chosenImage.getQueryUri()), null, null, null, null).getCount();
+                    Log.d(TAG, String.valueOf(count));
+                    InputStream is = getActivity().getContentResolver().openInputStream(Uri.parse(chosenImage.getQueryUri()));
                     byte[] imgData = new byte[is.available()];
                     is.read(imgData);
 //                    File file = new File(is);
                     RequestBody requestBody = new MultipartBody.Builder()
                             .setType(MultipartBody.FORM)
                             .addFormDataPart("stream-id", streamId)
-                            .addFormDataPart("tags", tags)
                             .addFormDataPart("image", chosenImage.getDisplayName(), RequestBody.create(MediaType.parse("image/jpeg"), imgData))
                             .build();
                     Request uploadRequest = new Request.Builder()
@@ -160,9 +152,7 @@ public class UploadActivity extends AppCompatActivity implements ImagePickerCall
                     if (!uploadResponse.isSuccessful()) {
                         throw new IOException("Unexpected code " + response);
                     }
-                    Log.d(TAG, uploadResponse.body().string());
-                    Toast.makeText(UploadActivity.this, "Uploaded successfully!",
-                            Toast.LENGTH_LONG).show();
+//                    Log.d(TAG, response.body().string());
 //                    uploadResponse.close();
 
 
@@ -173,8 +163,8 @@ public class UploadActivity extends AppCompatActivity implements ImagePickerCall
             }
         });
 
+        return view;
     }
-
 
     private ImagePicker imagePicker;
 
@@ -229,7 +219,7 @@ public class UploadActivity extends AppCompatActivity implements ImagePickerCall
     @Override
     public void onImagesChosen(List<ChosenImage> images) {
         Log.d(TAG, images.toString());
-        ImageView imgView = (ImageView) findViewById(R.id.chosenImage);
+        ImageView imgView = (ImageView) getView().findViewById(R.id.chosenImage);
         imgView.setImageURI(Uri.parse(images.get(0).getQueryUri()));
 
         chosenImage = images.get(0);
@@ -242,7 +232,7 @@ public class UploadActivity extends AppCompatActivity implements ImagePickerCall
 
     @Override
     public void onError(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -253,6 +243,13 @@ public class UploadActivity extends AppCompatActivity implements ImagePickerCall
         super.onSaveInstanceState(outState);
     }
 
-
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("picker_path")) {
+                pickerPath = savedInstanceState.getString("picker_path");
+            }
+        }
+    }
 }
-
