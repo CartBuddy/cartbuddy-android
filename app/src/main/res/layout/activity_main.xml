@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context="com.example.gulls.cartbuddy.MainActivity">
 
-
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -27,14 +26,13 @@
 
 
     <ListView
+        android:paddingBottom="60dp"
         android:id="@+id/list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/toolbar"
         android:divider="#806326"
         android:dividerHeight="1dp"
-        android:paddingBottom="60dp"
         android:scrollbars="vertical"
         android:stretchMode="columnWidth" />
 
