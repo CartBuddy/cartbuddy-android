@@ -12,25 +12,88 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary" />
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp">
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/edit_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Title"
+            />
+    </android.support.design.widget.TextInputLayout>
 
-    <EditText
-        android:id="@+id/edit_title"
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Edit title for the deal"
-        />
-    <EditText
-        android:inputType="textMultiLine"
-        android:id="@+id/edit_des"
+        android:padding="5dp">
+        <android.support.design.widget.TextInputEditText
+            android:inputType="textMultiLine"
+            android:id="@+id/edit_des"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Description"
+            />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Edit description for the deal"
-        />
+        android:padding="5dp">
+
+        <AutoCompleteTextView
+            android:id="@+id/autocomplete_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Food"
+            android:imeOptions="actionDone"
+            android:completionHint="Food" />
+
+    </android.support.design.widget.TextInputLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="50dp">
+
+        <TextView
+            android:id="@+id/text_place_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="Location"
+            android:padding="3dp"
+            android:text="Location"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+        <TextView
+            android:id="@+id/text_place_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+        <TextView
+            android:id="@+id/text_place_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button_place"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Location" />
 
     <LinearLayout
         android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        >
+        android:layout_width="match_parent">
+
         <Button
             android:textAllCaps="false"
             android:text="Camera"
@@ -44,7 +107,16 @@
             android:id="@+id/action_select_from_local"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"/>
+
     </LinearLayout>
+
+    <Button
+        android:id="@+id/button_create"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary"
+        android:textColor="@color/md_dark_primary_text"
+        android:text="Create" />
 
 
 </LinearLayout>
