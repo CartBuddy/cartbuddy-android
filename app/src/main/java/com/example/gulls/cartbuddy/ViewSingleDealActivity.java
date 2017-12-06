@@ -137,41 +137,43 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
 
                             //location
                             //location
-                            deal.placeId = dealJson.getString("placeId");
-                            if (dealJson.getString("location").equals("null")) {
-                                deal.location = new Deal.Location(0, 0);
-                            }
-                            else {
-                                JSONObject jsonObject = dealJson.getJSONObject("location");
-                                deal.lat = Double.valueOf(jsonObject.getString("x"));
-                                deal.lon = Double.valueOf(jsonObject.getString("y"));
-                                deal.location = new Deal.Location(deal.lat, deal.lon);
-                            }
-
+//                            deal.placeId = dealJson.getString("placeId");
 //                            if (dealJson.getString("location").equals("null")) {
-//                                deal.location = "Not available";
-//                            }else {
+//                                deal.location = new Deal.Location(0, 0);
+//                            }
+//                            else {
 //                                JSONObject jsonObject = dealJson.getJSONObject("location");
 //                                deal.lat = Double.valueOf(jsonObject.getString("x"));
 //                                deal.lon = Double.valueOf(jsonObject.getString("y"));
-//                                deal.location = getCompleteAddressString(deal.lat, deal.lon);
+//                                deal.location = new Deal.Location(deal.lat, deal.lon);
 //                            }
-                            geoDataClient.getPlaceById(deal.placeId).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
-                                @Override
-                                public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
-                                    if (task.isSuccessful()) {
-                                        PlaceBufferResponse places = task.getResult();
-                                        if (places.getCount() > 0) {
-                                            Place place = places.get(0);
-                                            TextView locationView = (TextView)findViewById(R.id.location);
-                                            locationView.setText(deal.location.toString());
-                                            locationView.setText(place.getName());
-                                            places.release();
-                                        }
-                                        places.release();
-                                    }
-                                }
-                            });
+
+                            if (dealJson.getString("location").equals("null")) {
+                                deal.locationStr = "Not available";
+                            }else {
+                                JSONObject jsonObject = dealJson.getJSONObject("location");
+                                deal.lat = Double.valueOf(jsonObject.getString("x"));
+                                deal.lon = Double.valueOf(jsonObject.getString("y"));
+                                deal.locationStr = getCompleteAddressString(deal.lat, deal.lon);
+                            }
+                            TextView locationView = (TextView) findViewById(R.id.location);
+                            locationView.setText(deal.locationStr);
+//                            geoDataClient.getPlaceById(deal.placeId).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
+//                                    if (task.isSuccessful()) {
+//                                        PlaceBufferResponse places = task.getResult();
+//                                        if (places.getCount() > 0) {
+//                                            Place place = places.get(0);
+//                                            TextView locationView = (TextView)findViewById(R.id.location);
+//                                            locationView.setText(deal.location.toString());
+//                                            locationView.setText(place.getName());
+//                                            places.release();
+//                                        }
+//                                        places.release();
+//                                    }
+//                                }
+//                            });
 
 
                         } catch (JSONException e) {

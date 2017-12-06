@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ListView listView;
     private ArrayList<Deal> deals = new ArrayList<>();
     private MaterialSearchView searchView;
+    private ArrayList<Deal> shownDeals = new ArrayList<>();
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onResponse(String response) {
                         try {
+                            shownDeals.clear();
                             JSONArray dealsJson = new JSONArray(response);
                             for (int i = 0; i < dealsJson.length(); i++) {
                                 JSONObject deal = dealsJson.getJSONObject(i);
@@ -119,21 +121,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
                                 //location
-                                d.placeId = deal.getString("placeId");
+//                                d.placeId = deal.getString("placeId");
 
                                 if (deal.getString("location").equals("null")) {
-                                    d.location = new Deal.Location(0, 0);
+                                    d.locationStr = "Not available";
                                 }
                                 else {
                                     JSONObject jsonObject = deal.getJSONObject("location");
                                     d.lat = Double.valueOf(jsonObject.getString("x"));
                                     d.lon = Double.valueOf(jsonObject.getString("y"));
-                                    d.location = new Deal.Location(d.lat, d.lon);
+                                    d.locationStr = getCompleteAddressString(d.lat, d.lon);
                                 }
 
                                 deals.add(d);
+                                shownDeals.add(d);
                             }
-                            listView.setAdapter(new DealAdapter(MainActivity.this, deals));
+                            listView.setAdapter(new DealAdapter(MainActivity.this, shownDeals));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -148,21 +151,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == MaterialSearchView.REQUEST_VOICE && resultCode == RESULT_OK) {
-            ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            if (matches != null && matches.size() > 0) {
-                String searchWrd = matches.get(0);
-                if (!TextUtils.isEmpty(searchWrd)) {
-                    searchView.setQuery(searchWrd, false);
-                }
-            }
 
-            return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -172,12 +161,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //all deals
         listView = (ListView) findViewById(R.id.list_view);
-        listView.setAdapter(new DealAdapter(MainActivity.this, deals));
+        listView.setAdapter(new DealAdapter(MainActivity.this, shownDeals));
         getDeals(serverUrl);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                String dealId = deals.get(position).id;
+                String dealId = shownDeals.get(position).id;
                 Intent intent = new Intent(MainActivity.this, ViewSingleDealActivity.class);
                 intent.putExtra("ID", dealId);
                 startActivity(intent);
@@ -201,8 +190,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onSearchViewClosed() {
 
                 //If closed Search View , lstView will return default
+                shownDeals.clear();
+                for (Deal d : deals) {
+                    shownDeals.add(d);
+                }
                 listView = (ListView) findViewById(R.id.list_view);
-                listView.setAdapter(new DealAdapter(MainActivity.this, deals));
+                listView.setAdapter(new DealAdapter(MainActivity.this, shownDeals));
             }
         });
 
@@ -214,17 +207,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                shownDeals.clear();
                 if (newText != null && !newText.isEmpty()) {
                     ArrayList<Deal> lstFound = new ArrayList<>();
                     for (Deal item : deals) {
-                        if (item.title.toLowerCase().contains(newText.toLowerCase()))
+                        if (item.title.toLowerCase().contains(newText.toLowerCase())){
                             lstFound.add(item);
+                            shownDeals.add(item);
+                        }
                     }
 
-                    listView.setAdapter(new DealAdapter(MainActivity.this, lstFound));
+                    listView.setAdapter(new DealAdapter(MainActivity.this, shownDeals));
 
                 } else {
-                    listView.setAdapter(new DealAdapter(MainActivity.this, deals));
+                    for(Deal d : deals) {
+                        shownDeals.add(d);
+                    }
+                    listView.setAdapter(new DealAdapter(MainActivity.this, shownDeals));
 
                 }
                 return true;

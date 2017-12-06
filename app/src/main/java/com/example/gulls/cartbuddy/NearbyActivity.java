@@ -58,6 +58,8 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
     private ListView listView;
     private ArrayList<Deal> deals = new ArrayList<>();
     private MaterialSearchView searchView;
+    private ArrayList<Deal> shownDeals = new ArrayList<>();
+
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -97,6 +99,7 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
                     @Override
                     public void onResponse(String response) {
                         try {
+                            shownDeals.clear();
                             JSONArray dealsJson = new JSONArray(response);
                             for (int i = 0; i < dealsJson.length(); i++) {
                                 JSONObject deal = dealsJson.getJSONObject(i);
@@ -119,24 +122,26 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
                                 }
 
                                 //location
-                                d.placeId = deal.getString("placeId");
-                                if (deal.getString("location").equals("null")) {
-                                    d.location = new Deal.Location(0, 0);
-                                }
-                                else {
-                                    JSONObject jsonObject = deal.getJSONObject("location");
-                                    d.lat = Double.valueOf(jsonObject.getString("x"));
-                                    d.lon = Double.valueOf(jsonObject.getString("y"));
-                                    d.location = new Deal.Location(d.lat, d.lon);
-                                }
+//                                d.placeId = deal.getString("placeId");
 //                                if (deal.getString("location").equals("null")) {
-//                                    d.location = "Not available";
-//                                }else {
+//                                    d.location = new Deal.Location(0, 0);
+//                                }
+//                                else {
 //                                    JSONObject jsonObject = deal.getJSONObject("location");
 //                                    d.lat = Double.valueOf(jsonObject.getString("x"));
 //                                    d.lon = Double.valueOf(jsonObject.getString("y"));
-//                                    d.location = getCompleteAddressString(d.lat, d.lon);
+//                                    d.location = new Deal.Location(d.lat, d.lon);
 //                                }
+                                if (deal.getString("location").equals("null")) {
+                                    d.locationStr = "Not available";
+                                    d.distance = Double.MAX_VALUE;
+                                }else {
+                                    JSONObject jsonObject = deal.getJSONObject("location");
+                                    d.lat = Double.valueOf(jsonObject.getString("x"));
+                                    d.lon = Double.valueOf(jsonObject.getString("y"));
+                                    d.distance = distance(d.lat, d.lon, lat, lon);
+                                    d.locationStr = getCompleteAddressString(d.lat, d.lon);
+                                }
 
                                 deals.add(d);
                             }
@@ -147,7 +152,10 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
                                     else return 0;
                                 }
                             });
-                            listView.setAdapter(new DealAdapter(NearbyActivity.this, deals));
+                            for (Deal d : deals) {
+                                shownDeals.add(d);
+                            }
+                            listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -183,12 +191,12 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
 
         //all deals
         listView = (ListView) findViewById(R.id.list_view);
-        listView.setAdapter(new DealAdapter(NearbyActivity.this, deals));
+        listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
         getDeals(serverUrl);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                String dealId = deals.get(position).id;
+                String dealId = shownDeals.get(position).id;
                 Intent intent = new Intent(NearbyActivity.this, ViewSingleDealActivity.class);
                 intent.putExtra("ID", dealId);
                 startActivity(intent);
@@ -212,8 +220,12 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
             public void onSearchViewClosed() {
 
                 //If closed Search View , lstView will return default
+                shownDeals.clear();
+                for (Deal d : deals) {
+                    shownDeals.add(d);
+                }
                 listView = (ListView) findViewById(R.id.list_view);
-                listView.setAdapter(new DealAdapter(NearbyActivity.this, deals));
+                listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
             }
         });
 
@@ -225,17 +237,23 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                shownDeals.clear();
                 if (newText != null && !newText.isEmpty()) {
                     ArrayList<Deal> lstFound = new ArrayList<>();
                     for (Deal item : deals) {
-                        if (item.title.toLowerCase().contains(newText.toLowerCase()))
+                        if (item.title.toLowerCase().contains(newText.toLowerCase())){
                             lstFound.add(item);
+                            shownDeals.add(item);
+                        }
                     }
 
-                    listView.setAdapter(new DealAdapter(NearbyActivity.this, lstFound));
+                    listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
 
                 } else {
-                    listView.setAdapter(new DealAdapter(NearbyActivity.this, deals));
+                    for(Deal d : deals) {
+                        shownDeals.add(d);
+                    }
+                    listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
 
                 }
                 return true;

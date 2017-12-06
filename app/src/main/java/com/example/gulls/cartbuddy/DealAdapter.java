@@ -36,9 +36,8 @@ public class DealAdapter extends BaseAdapter {
     private ArrayList<String> imageUrls;
     private ArrayList<String> likes;
     private ArrayList<String> dates;
-    private ArrayList<Deal.Location> locations;
     private ArrayList<String> placeIds;
-
+    private ArrayList<String> locationStrs;
 
     public DealAdapter(Context c,  ArrayList<Deal> deals) {
         mContext = c;
@@ -48,7 +47,7 @@ public class DealAdapter extends BaseAdapter {
         imageUrls = new ArrayList<>();
         likes = new ArrayList<>();
         dates = new ArrayList<>();
-        locations = new ArrayList<>();
+        locationStrs = new ArrayList<>();
         placeIds = new ArrayList<>();
 
         for (Deal d : deals) {
@@ -56,7 +55,7 @@ public class DealAdapter extends BaseAdapter {
             imageUrls.add(d.photoUrl);
             likes.add(String.valueOf(d.likes));
             dates.add(d.date);
-            locations.add(d.location);
+            locationStrs.add(d.locationStr);
             placeIds.add(d.placeId);
         }
     }
@@ -94,25 +93,25 @@ public class DealAdapter extends BaseAdapter {
         voteView.setText(likes.get(position));
         dateView.setText(dates.get(position));
 
-        if (placeIds.get(position) != null) {
-            geoDataClient.getPlaceById(placeIds.get(position)).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
-                @Override
-                public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
-                    if (task.isSuccessful()) {
-                        PlaceBufferResponse places = task.getResult();
-                        if (places.getCount() > 0) {
-                            Place place = places.get(0);
-                            locationView.setText(place.getName());
-                            places.release();
-                        }
-                        places.release();
-                    }
-                }
-            });
-        }
+//        if (placeIds.get(position) != null) {
+//            geoDataClient.getPlaceById(placeIds.get(position)).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
+//                @Override
+//                public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
+//                    if (task.isSuccessful()) {
+//                        PlaceBufferResponse places = task.getResult();
+//                        if (places.getCount() > 0) {
+//                            Place place = places.get(0);
+//                            locationView.setText(place.getName());
+//                            places.release();
+//                        }
+//                        places.release();
+//                    }
+//                }
+//            });
+//        }
 
 
-//        locationView.setText(locations.get(position).toString());
+        locationView.setText(locationStrs.get(position).toString());
         return grid;
     }
 }

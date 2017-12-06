@@ -46,10 +46,11 @@ public class Deal {
 //    public String location;
     public Location location;
 
+    public String locationStr;
     public transient double lat = 0.0;
     public transient double lon = 0.0;
 
-    public double distance = 0.0;
+    public double distance = Double.MAX_VALUE;
 
     public String placeId;
     public transient Place place;

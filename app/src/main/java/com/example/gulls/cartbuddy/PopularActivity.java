@@ -50,6 +50,8 @@ public class PopularActivity extends AppCompatActivity implements View.OnClickLi
     private ListView listView;
     private ArrayList<Deal> deals = new ArrayList<>();
     private MaterialSearchView searchView;
+    private ArrayList<Deal> shownDeals = new ArrayList<>();
+
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -89,6 +91,7 @@ public class PopularActivity extends AppCompatActivity implements View.OnClickLi
                     @Override
                     public void onResponse(String response) {
                         try {
+                            shownDeals.clear();
                             JSONArray dealsJson = new JSONArray(response);
                             for (int i = 0; i < dealsJson.length(); i++) {
                                 JSONObject deal = dealsJson.getJSONObject(i);
@@ -108,16 +111,17 @@ public class PopularActivity extends AppCompatActivity implements View.OnClickLi
                                 d.date = deal.getString("createdAt");
 
                                 //location
-                                d.placeId = deal.getString("placeId");
+//                                d.placeId = deal.getString("placeId");
                                 if (deal.getString("location").equals("null")) {
-                                    d.location = new Deal.Location(0, 0);
+                                    d.locationStr = "Not available";
                                 }
                                 else {
                                     JSONObject jsonObject = deal.getJSONObject("location");
                                     d.lat = Double.valueOf(jsonObject.getString("x"));
                                     d.lon = Double.valueOf(jsonObject.getString("y"));
-                                    d.location = new Deal.Location(d.lat, d.lon);
+                                    d.locationStr = getCompleteAddressString(d.lat, d.lon);
                                 }
+
 
                                 if (d.date.length() > 10) {
                                     d.date = d.date.substring(0, 10);
@@ -129,7 +133,10 @@ public class PopularActivity extends AppCompatActivity implements View.OnClickLi
                                     return d2.likes - d1.likes;
                                 }
                             });
-                            listView.setAdapter(new DealAdapter(PopularActivity.this, deals));
+                            for (Deal d : deals) {
+                                shownDeals.add(d);
+                            }
+                            listView.setAdapter(new DealAdapter(PopularActivity.this, shownDeals));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -152,17 +159,18 @@ public class PopularActivity extends AppCompatActivity implements View.OnClickLi
 
         //all deals
         listView = (ListView) findViewById(R.id.list_view);
-        listView.setAdapter(new DealAdapter(PopularActivity.this, deals));
+        listView.setAdapter(new DealAdapter(PopularActivity.this, shownDeals));
         getDeals(serverUrl);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                String dealId = deals.get(position).id;
+                String dealId = shownDeals.get(position).id;
                 Intent intent = new Intent(PopularActivity.this, ViewSingleDealActivity.class);
                 intent.putExtra("ID", dealId);
                 startActivity(intent);
             }
         });
+
 
         //toolbar & search
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -181,8 +189,12 @@ public class PopularActivity extends AppCompatActivity implements View.OnClickLi
             public void onSearchViewClosed() {
 
                 //If closed Search View , lstView will return default
+                shownDeals.clear();
+                for (Deal d : deals) {
+                    shownDeals.add(d);
+                }
                 listView = (ListView) findViewById(R.id.list_view);
-                listView.setAdapter(new DealAdapter(PopularActivity.this, deals));
+                listView.setAdapter(new DealAdapter(PopularActivity.this, shownDeals));
             }
         });
 
@@ -194,23 +206,30 @@ public class PopularActivity extends AppCompatActivity implements View.OnClickLi
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                shownDeals.clear();
                 if (newText != null && !newText.isEmpty()) {
                     ArrayList<Deal> lstFound = new ArrayList<>();
                     for (Deal item : deals) {
-                        if (item.title.toLowerCase().contains(newText.toLowerCase()))
+                        if (item.title.toLowerCase().contains(newText.toLowerCase())){
                             lstFound.add(item);
+                            shownDeals.add(item);
+                        }
                     }
 
-                    listView.setAdapter(new DealAdapter(PopularActivity.this, lstFound));
+                    listView.setAdapter(new DealAdapter(PopularActivity.this, shownDeals));
 
                 } else {
-                    listView.setAdapter(new DealAdapter(PopularActivity.this, deals));
+                    for(Deal d : deals) {
+                        shownDeals.add(d);
+                    }
+                    listView.setAdapter(new DealAdapter(PopularActivity.this, shownDeals));
 
                 }
                 return true;
             }
 
         });
+
 
         //navigation
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
