@@ -11,6 +11,7 @@ import java.util.Date;
 
 public class Deal {
     public String id;
+    @Json(name = "userId")
     public String user;
     @Json(name = "photoUrls")
     public String[] photoUrls;
@@ -23,12 +24,18 @@ public class Deal {
     //createdAt
     public String date;
     public String category;
-    public double lat = 0.0;
-    public double lon = 0.0;
+    public String location;
+
+    public transient double lat = 0.0;
+    public transient double lon = 0.0;
+
     public double distance = 0.0;
+    public String placeId;
+
     public Deal(){
 
     }
+
     public Deal(String id, String title, String photoUrl, int likes, String date){
         this.id = id;
         this.title = title;

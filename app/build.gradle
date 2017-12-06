@@ -64,7 +64,8 @@ dependencies {
     implementation 'com.google.dagger:dagger-android-support:2.13'
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.13'
 
-    // material about page
+    // image picker
+    implementation 'com.github.esafirm.android-image-picker:imagepicker:1.9.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'

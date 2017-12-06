@@ -1,6 +1,8 @@
 package com.example.gulls.cartbuddy;
 
 import android.Manifest;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -8,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -27,9 +30,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.esafirm.imagepicker.features.ImagePicker;
+import com.esafirm.imagepicker.model.Image;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -39,22 +46,32 @@ import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.JsonReader;
+import com.squareup.moshi.Moshi;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.BufferedSource;
+
+import static android.content.Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP;
 
 public class CreateDealActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener{
     private static final String TAG = CreateDealActivity.class.getName();
@@ -63,6 +80,7 @@ public class CreateDealActivity extends AppCompatActivity implements GoogleApiCl
     private static final String xAppKey = "9e275d051b50fc891da0052012591509";
 
     private static final int PLACE_PICKER_REQUEST = 1;
+    private static final int IMAGE_PICKER_REQUEST = 2;
     private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
     GoogleApiClient mGoogleApiClient;
@@ -78,10 +96,26 @@ public class CreateDealActivity extends AppCompatActivity implements GoogleApiCl
 
     ArrayAdapter<String> foodAdapter;
 
+    private String url;
+    private String urlImages;
+    // fields we store for the deal
+    private Deal deal;
+    private String placeId;
+    private String location;
+    private List<Image> dealImages;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_deal);
+
+        // create our deal
+        deal = new Deal();
+        dealImages = new ArrayList<>();
+
+        // set the url
+        url = getString(R.string.base_url) + "/deals";
+        urlImages = getString(R.string.base_url) + "/images";
 
         // Request permissions
         // Here, thisActivity is the current activity
@@ -136,8 +170,6 @@ public class CreateDealActivity extends AppCompatActivity implements GoogleApiCl
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("CartBuddy");
         toolbar.setTitleTextColor(Color.parseColor("#FFFFFF"));
-        Button cameraBtn = (Button) findViewById(R.id.action_camera);
-        cameraBtn.setOnClickListener(this);
         Button selectBtn = (Button) findViewById(R.id.action_select_from_local);
         selectBtn.setOnClickListener(this);
 
@@ -272,6 +304,14 @@ public class CreateDealActivity extends AppCompatActivity implements GoogleApiCl
 
             }
         });
+
+        Button uploadButton = (Button)findViewById(R.id.button_create);
+        uploadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                upload();
+            }
+        });
     }
 
     @Override
@@ -329,6 +369,9 @@ public class CreateDealActivity extends AppCompatActivity implements GoogleApiCl
         TextView textPlaceAddress = findViewById(R.id.text_place_address);
         textPlaceName.setText(place.getName());
         textPlaceAddress.setText(place.getAddress());
+        placeId = place.getId();
+        LatLng latLng = place.getLatLng();
+        location = "(" + latLng.latitude + "," + latLng.longitude + ")";
     }
 
 
@@ -343,6 +386,109 @@ public class CreateDealActivity extends AppCompatActivity implements GoogleApiCl
 
     private void upload(){
         Toast.makeText(CreateDealActivity.this, "Thanks for sharing!", Toast.LENGTH_LONG).show();
+
+        deal.title = ((EditText)findViewById(R.id.edit_title)).getText().toString();
+        Log.d(TAG, deal.title);
+        deal.description = ((EditText)findViewById(R.id.edit_des)).getText().toString();
+        Log.d(TAG, deal.description);
+        deal.category = ((AutoCompleteTextView)findViewById(R.id.autocomplete_category)).getText().toString();
+        Log.d(TAG, deal.category);
+        deal.user = UserSession.getSession().getActiveUser().id;
+        Log.d(TAG, deal.user);
+
+        deal.placeId = placeId;
+        Log.d(TAG, deal.placeId);
+        deal.location = location;
+        Log.d(TAG, deal.location);
+
+        Moshi moshi = new Moshi.Builder().build();
+        JsonAdapter<Deal> jsonAdapter = moshi.adapter(Deal.class);
+        String json = jsonAdapter.toJson(deal);
+        Log.d(TAG, json);
+
+        // now send the request
+        RequestBody postBody = RequestBody.create(MediaType.parse("application/json"), json);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(postBody)
+                .build();
+
+        HttpClient.getClient().newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code: " + response.code());
+                    }
+
+                    String urlToDeal = responseBody.string();
+                    Log.d(TAG, urlToDeal);
+
+                    String dealId = urlToDeal.substring(urlToDeal.lastIndexOf('/') + 1, urlToDeal.length());
+                    deal.id = dealId;
+                    uploadDealImage();
+                }
+            }
+        });
+    }
+
+    /**
+     * Upload image for the deal AFTER the deal has been created.
+     * Assumes deal.id is valid and dealImages is valid.
+     */
+    void uploadDealImage() {
+        if (dealImages.size() == 0) {
+            return;
+        }
+
+        MultipartBody.Builder formBuilder = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("deal-id", deal.id);
+        for (Image image : dealImages) {
+            formBuilder.addFormDataPart("image" + image.getId(), image.getName(),
+                    RequestBody.create(MediaType.parse("image/jpeg"), new File(image.getPath())));
+        }
+        RequestBody requestBody = formBuilder.build();
+        Log.d(TAG, requestBody.toString());
+        Request request = new Request.Builder()
+                .url(urlImages)
+                .post(requestBody)
+                .build();
+
+        HttpClient.getClient().newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unknown response code: " + response.code());
+                    }
+
+                    String urlToImage = responseBody.string();
+                    Log.d(TAG, urlToImage);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(CreateDealActivity.this, ViewSingleDealActivity.class);
+                            intent.putExtra("ID", deal.id);
+                            intent.addFlags(FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+                }
+            }
+        });
     }
 
     //click send icon -> send deal to server;
@@ -363,13 +509,14 @@ public class CreateDealActivity extends AppCompatActivity implements GoogleApiCl
         Toast.makeText(CreateDealActivity.this, "Take a picture using camera", Toast.LENGTH_LONG).show();
     }
     private void selectPhoto(){
+        ImagePicker
+                .create(this)
+                .start(IMAGE_PICKER_REQUEST);
         Toast.makeText(CreateDealActivity.this, "Select a photo from your album", Toast.LENGTH_LONG).show();
     }
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-            case R.id.action_camera:
-                useCamera();
             case R.id.action_select_from_local:
                 selectPhoto();
         }
@@ -418,6 +565,30 @@ public class CreateDealActivity extends AppCompatActivity implements GoogleApiCl
             }
             else {
                 Log.d(TAG, "Place error: " + resultCode);
+            }
+        }
+
+        else if (requestCode == IMAGE_PICKER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                List<Image> images = ImagePicker.getImages(data);
+                if (images.size() > 0) {
+                    ImageButton dealImageButton = findViewById(R.id.dealImageButton);
+                    dealImageButton.setVisibility(View.VISIBLE);
+                    dealImageButton.setImageURI(Uri.parse(images.get(0).getPath()));
+                    dealImageButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            selectPhoto();
+                        }
+                    });
+                }
+
+                for (Image image : images) {
+                    Log.d(TAG, image.getPath());
+                }
+
+                dealImages.addAll(images);
+                Log.d(TAG, "# images: " + dealImages.size());
             }
         }
     }
