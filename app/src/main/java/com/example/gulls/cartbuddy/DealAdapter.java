@@ -43,6 +43,7 @@ public class DealAdapter extends BaseAdapter {
     private ArrayList<String> locationStrs;
 
     public DealAdapter(Context c,  ArrayList<Deal> deals) {
+        Log.d("Adapter", "constructor");
         mContext = c;
         geoDataClient = Places.getGeoDataClient(c, null);
         placeDetectionClient = Places.getPlaceDetectionClient(c, null);
@@ -64,12 +65,14 @@ public class DealAdapter extends BaseAdapter {
         }
     }
 
+    @Override
     public int getCount() {
         return deals.size();
     }
 
+    @Override
     public Object getItem(int position) {
-        return null;
+        return deals.get(position);
     }
 
     public long getItemId(int position) {
@@ -78,6 +81,24 @@ public class DealAdapter extends BaseAdapter {
 
     // create a new ImageView for each item referenced by the Adapter
     public View getView(int position, View convertView, ViewGroup parent) {
+        Log.d("DealAdapter", "getView");
+        titles.clear();
+        imageUrls.clear();
+        likes.clear();
+        dates.clear();
+        locationStrs.clear();
+        placeIds.clear();
+        for (Deal d : deals) {
+            titles.add(d.title);
+            imageUrls.add(d.photoUrl);
+            likes.add(String.valueOf(d.likes));
+            dates.add(d.date);
+            locationStrs.add(d.locationStr);
+            placeIds.add(d.placeId);
+        }
+
+        Deal deal = deals.get(position);
+
         View grid = null;
         LayoutInflater inflater = (LayoutInflater) mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -92,6 +113,12 @@ public class DealAdapter extends BaseAdapter {
         TextView voteView = (TextView) grid.findViewById(R.id.list_votes);
         TextView dateView = (TextView) grid.findViewById(R.id.list_date);
         final TextView locationView = (TextView) grid.findViewById(R.id.list_location);
+
+//        titleView.setText(deal.title);
+//        Picasso.with(mContext).load(deal.photoUrl).fit().centerCrop().into(imageView);
+//        voteView.setText(deal.likes);
+//        dateView.setText(deal.date);
+
         titleView.setText(titles.get(position));
         Picasso.with(mContext).load(imageUrls.get(position)).fit().centerCrop().into(imageView);
         voteView.setText(likes.get(position));

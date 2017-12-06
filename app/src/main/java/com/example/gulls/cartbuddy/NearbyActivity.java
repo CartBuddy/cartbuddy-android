@@ -30,7 +30,16 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.GeoDataApi;
+import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBufferResponse;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import org.json.JSONArray;
@@ -47,12 +56,16 @@ import android.graphics.Color;
 
 public class NearbyActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,View.OnClickListener {
     GoogleApiClient mGoogleApiClient;
+    GeoDataClient geoDataClient;
+    FusedLocationProviderClient fusedLocationProviderClient;
     Location mLastLocation;
     private double lat = 0.0, lon = 0.0;
 
     final private String noImageUrl =  "https://www.built.co.uk/c.3624292/a/img/no_image_available.jpeg?resizeid=2&resizeh=350&resizew=350";
     private final String TAG = "NEARBY";
     final String serverUrl = "https://cartbuddy.benfu.me/deals?sort=recent";
+
+    private DealAdapter dealAdapter;
 
     private Intent intent;
     private ListView listView;
@@ -99,7 +112,7 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
                     @Override
                     public void onResponse(String response) {
                         try {
-                            shownDeals.clear();
+                            Log.d(TAG, "got response");
                             JSONArray dealsJson = new JSONArray(response);
                             for (int i = 0; i < dealsJson.length(); i++) {
                                 JSONObject deal = dealsJson.getJSONObject(i);
@@ -123,15 +136,6 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
 
                                 //location
                                 d.placeId = deal.getString("placeId");
-//                                if (deal.getString("location").equals("null")) {
-//                                    d.location = new Deal.Location(0, 0);
-//                                }
-//                                else {
-//                                    JSONObject jsonObject = deal.getJSONObject("location");
-//                                    d.lat = Double.valueOf(jsonObject.getString("x"));
-//                                    d.lon = Double.valueOf(jsonObject.getString("y"));
-//                                    d.location = new Deal.Location(d.lat, d.lon);
-//                                }
                                 if (deal.getString("location").equals("null")) {
                                     d.locationStr = "Not available";
                                     d.distance = Double.MAX_VALUE;
@@ -145,17 +149,51 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
 
                                 deals.add(d);
                             }
-                            Collections.sort(deals, new Comparator<Deal>() {
-                                public int compare(Deal d1, Deal d2) {
-                                    if (d1.distance < d2.distance) return -1;
-                                    else if (d1.distance > d2.distance) return 1;
-                                    else return 0;
+                            shownDeals.clear();
+                            shownDeals.addAll(deals);
+                            Log.d(TAG, "Added all deals");
+                            Log.d(TAG, String.valueOf(shownDeals.size()));
+                            sortDeals();
+                            Log.d(TAG, "sorted deals");
+                            for (final Deal deal : shownDeals) {
+                                Log.d(TAG, "Getting place for deal");
+                                if (deal.placeId != null) {
+                                    geoDataClient.getPlaceById(deal.placeId).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
+                                            Log.d(TAG, "got location");
+                                            if (task.isSuccessful()) {
+                                                Log.d(TAG, "got location successfully");
+                                                PlaceBufferResponse places = task.getResult();
+                                                if (places.getCount() > 0) {
+                                                    Place place = places.get(0);
+                                                    LatLng latLng = place.getLatLng();
+                                                    deal.distance = distance(mLastLocation.getLatitude(), mLastLocation.getLongitude(),
+                                                            latLng.latitude, latLng.longitude);
+                                                    places.release();
+                                                    dealAdapter.notifyDataSetChanged();
+                                                    sortDeals();
+                                                }
+                                                else {
+                                                    places.release();
+                                                }
+
+                                            }
+                                        }
+                                    });
                                 }
-                            });
-                            for (Deal d : deals) {
-                                shownDeals.add(d);
                             }
-                            listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
+//                            Collections.sort(deals, new Comparator<Deal>() {
+//                                public int compare(Deal d1, Deal d2) {
+//                                    if (d1.distance < d2.distance) return -1;
+//                                    else if (d1.distance > d2.distance) return 1;
+//                                    else return 0;
+//                                }
+//                            });
+//                            for (Deal d : deals) {
+//                                shownDeals.add(d);
+//                            }
+//                            listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -169,6 +207,19 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
         });
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
+    }
+
+    protected void sortDeals() {
+        shownDeals.clear();
+        Collections.sort(deals, new Comparator<Deal>() {
+            @Override
+            public int compare(Deal d1, Deal d2) {
+                return Double.compare(d1.distance, d2.distance);
+            }
+        });
+        shownDeals.addAll(deals);
+        dealAdapter.notifyDataSetChanged();
+
     }
 
     @Override
@@ -189,10 +240,19 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
         } else
             Toast.makeText(this, "Not connected...", Toast.LENGTH_LONG).show();
 
+        geoDataClient = Places.getGeoDataClient(this, null);
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
         //all deals
+        Log.d(TAG, "creating initial deals");
+        deals = new ArrayList<>();
+        shownDeals = new ArrayList<>();
+        dealAdapter = new DealAdapter(this, shownDeals);
         listView = (ListView) findViewById(R.id.list_view);
-        listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
-        getDeals(serverUrl);
+        listView.setAdapter(dealAdapter);
+        Log.d(TAG, "set adapter");
+//        listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
+//        getDeals(serverUrl);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
@@ -224,8 +284,9 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
                 for (Deal d : deals) {
                     shownDeals.add(d);
                 }
-                listView = (ListView) findViewById(R.id.list_view);
-                listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
+                dealAdapter.notifyDataSetChanged();
+//                listView = (ListView) findViewById(R.id.list_view);
+//                listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
             }
         });
 
@@ -247,18 +308,35 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
                         }
                     }
 
-                    listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
+                    dealAdapter.notifyDataSetChanged();
+//                    listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
 
                 } else {
                     for(Deal d : deals) {
                         shownDeals.add(d);
                     }
-                    listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
+                    dealAdapter.notifyDataSetChanged();
+//                    listView.setAdapter(new DealAdapter(NearbyActivity.this, shownDeals));
 
                 }
                 return true;
             }
 
+        });
+
+        // get current location
+        Task locationResult = fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+            @Override
+            public void onComplete(@NonNull Task<Location> task) {
+                if (task.isSuccessful()) {
+                    mLastLocation = task.getResult();
+                }
+                else {
+                    Log.d(TAG, "current location is null.");
+                }
+                Log.d(TAG, "got location");
+                getDeals(serverUrl);
+            }
         });
 
         //navigation
@@ -302,15 +380,15 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
             Toast.makeText(this, "Do not have permission...", Toast.LENGTH_LONG).show();
             return;
         }
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
 
-        if (mLastLocation != null) {
-            lon = mLastLocation.getLongitude();
-            lat = mLastLocation.getLatitude();
-//            Toast.makeText(ViewNearbyStreamsActivity.this, "Latitude: " + String.valueOf(mLastLocation.getLatitude()) + "Longitude: " +
-//                    String.valueOf(mLastLocation.getLongitude()), Toast.LENGTH_LONG).show();
-        }
+//        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+//                mGoogleApiClient);
+//
+//
+//        if (mLastLocation != null) {
+//            lon = mLastLocation.getLongitude();
+//            lat = mLastLocation.getLatitude();
+//        }
     }
 
     private String getCompleteAddressString(double LATITUDE, double LONGITUDE) {
