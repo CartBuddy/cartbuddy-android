@@ -2,6 +2,7 @@ package com.example.gulls.cartbuddy;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
@@ -33,13 +35,15 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
+public class SignInActivity extends AppCompatActivity implements View.OnClickListener, OnCompleteListener<Void> {
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 3;
 
     private OkHttpClient httpClient = HttpClient.getClient();
 
     private GoogleSignInClient googleSignInClient;
+
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +62,12 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         SignInButton signInButton = findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
         findViewById(R.id.sign_in_button).setOnClickListener(this);
+
+        intent = getIntent();
+        if (intent.getBooleanExtra("sign-out", false)) {
+            googleSignInClient.signOut().addOnCompleteListener(this);
+        }
+
     }
 
     @Override
@@ -170,4 +180,10 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    @Override
+    public void onComplete(@NonNull Task<Void> task) {
+        if (task.isSuccessful()) {
+            task.getResult();
+        }
+    }
 }

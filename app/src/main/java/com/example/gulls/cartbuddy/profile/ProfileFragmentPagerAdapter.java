@@ -24,7 +24,7 @@ public class ProfileFragmentPagerAdapter extends FragmentPagerAdapter {
                 return UserDealsFragment.newInstance();
 
             case 1:
-                return UserDealsFragment.newInstance();
+                return UserSettingsFragment.newInstance();
         }
         return UserDealsFragment.newInstance();
     }
@@ -38,11 +38,11 @@ public class ProfileFragmentPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case 0:
-                return UserDealsFragment.title;
+                return UserDealsFragment.TITLE;
 
             case 1:
-                return UserDealsFragment.title;
+                return UserSettingsFragment.TITLE;
         }
-        return UserDealsFragment.title;
+        return "";
     }
 }

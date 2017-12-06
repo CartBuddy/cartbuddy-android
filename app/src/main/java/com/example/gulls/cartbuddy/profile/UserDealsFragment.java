@@ -46,7 +46,7 @@ import okhttp3.ResponseBody;
  * create an instance of this fragment.
  */
 public class UserDealsFragment extends Fragment {
-    public static final String title = "My Deals";
+    public static final String TITLE = "My Deals";
 
     private static final String TAG = UserDealsFragment.class.getName();
 
@@ -142,7 +142,6 @@ public class UserDealsFragment extends Fragment {
                         if (deal.photoUrls != null) {
                             deal.photoUrl = deal.photoUrls[0];
                         }
-
                     }
 
                     getActivity().runOnUiThread(new Runnable() {

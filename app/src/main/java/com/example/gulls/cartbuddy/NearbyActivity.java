@@ -119,17 +119,24 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
                                 }
 
                                 //location
+                                d.placeId = deal.getString("placeId");
                                 if (deal.getString("location").equals("null")) {
-                                    d.location = "Not available";
-                                    d.distance = Double.MAX_VALUE;
-                                }else {
+                                    d.location = new Deal.Location(0, 0);
+                                }
+                                else {
                                     JSONObject jsonObject = deal.getJSONObject("location");
                                     d.lat = Double.valueOf(jsonObject.getString("x"));
                                     d.lon = Double.valueOf(jsonObject.getString("y"));
-                                    d.distance = distance(d.lat, d.lon, lat, lon);
-                                    d.location = getCompleteAddressString(d.lat, d.lon);
-
+                                    d.location = new Deal.Location(d.lat, d.lon);
                                 }
+//                                if (deal.getString("location").equals("null")) {
+//                                    d.location = "Not available";
+//                                }else {
+//                                    JSONObject jsonObject = deal.getJSONObject("location");
+//                                    d.lat = Double.valueOf(jsonObject.getString("x"));
+//                                    d.lon = Double.valueOf(jsonObject.getString("y"));
+//                                    d.location = getCompleteAddressString(d.lat, d.lon);
+//                                }
 
                                 deals.add(d);
                             }

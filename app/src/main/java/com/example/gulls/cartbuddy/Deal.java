@@ -5,11 +5,29 @@ package com.example.gulls.cartbuddy;
  */
 import android.location.Location;
 
+import com.google.android.gms.location.places.Place;
 import com.squareup.moshi.Json;
 
 import java.util.Date;
 
 public class Deal {
+    public static class Location {
+        public double x;
+        public double y;
+
+        public Location(double lat, double lng) {
+            x = lat;
+            y = lng;
+        }
+
+        @Override
+        public String toString() {
+            if (Double.compare(x, 0) == 0 && Double.compare(y, 0) == 0) {
+                return "Not available";
+            }
+            return "x:" + x + ",y:" + y;
+        }
+    }
     public String id;
     @Json(name = "userId")
     public String user;
@@ -24,7 +42,9 @@ public class Deal {
     //createdAt
     public String date;
     public String category;
-    public String location;
+
+//    public String location;
+    public Location location;
 
     public transient double lat = 0.0;
     public transient double lon = 0.0;
@@ -32,6 +52,7 @@ public class Deal {
     public double distance = 0.0;
 
     public String placeId;
+    public transient Place place;
 
     public Deal(){
 

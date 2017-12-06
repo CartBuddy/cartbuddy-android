@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +22,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBufferResponse;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -47,12 +54,16 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
     private final String TAG = "POPULAR";
     final String serverUrl = "https://cartbuddy.benfu.me/deals/";
 
+    private GeoDataClient geoDataClient;
+
     private String dealUrl = "";
     Deal deal = new Deal();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        geoDataClient = Places.getGeoDataClient(this, null);
 
         setContentView(R.layout.activity_view_single_deal);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -126,16 +137,42 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
 
                             //location
                             //location
+                            deal.placeId = dealJson.getString("placeId");
                             if (dealJson.getString("location").equals("null")) {
-                                deal.location = "Not available";
-                            }else {
+                                deal.location = new Deal.Location(0, 0);
+                            }
+                            else {
                                 JSONObject jsonObject = dealJson.getJSONObject("location");
                                 deal.lat = Double.valueOf(jsonObject.getString("x"));
                                 deal.lon = Double.valueOf(jsonObject.getString("y"));
-                                deal.location = getCompleteAddressString(deal.lat, deal.lon);
+                                deal.location = new Deal.Location(deal.lat, deal.lon);
                             }
-                            TextView locationView = (TextView)findViewById(R.id.location);
-                            locationView.setText(deal.location);
+
+//                            if (dealJson.getString("location").equals("null")) {
+//                                deal.location = "Not available";
+//                            }else {
+//                                JSONObject jsonObject = dealJson.getJSONObject("location");
+//                                deal.lat = Double.valueOf(jsonObject.getString("x"));
+//                                deal.lon = Double.valueOf(jsonObject.getString("y"));
+//                                deal.location = getCompleteAddressString(deal.lat, deal.lon);
+//                            }
+                            geoDataClient.getPlaceById(deal.placeId).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
+                                @Override
+                                public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
+                                    if (task.isSuccessful()) {
+                                        PlaceBufferResponse places = task.getResult();
+                                        if (places.getCount() > 0) {
+                                            Place place = places.get(0);
+                                            TextView locationView = (TextView)findViewById(R.id.location);
+                                            locationView.setText(deal.location.toString());
+                                            locationView.setText(place.getName());
+                                            places.release();
+                                        }
+                                        places.release();
+                                    }
+                                }
+                            });
+
 
                         } catch (JSONException e) {
                             e.printStackTrace();

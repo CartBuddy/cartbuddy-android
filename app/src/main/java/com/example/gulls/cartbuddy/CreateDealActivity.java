@@ -101,7 +101,7 @@ public class CreateDealActivity extends AppCompatActivity implements GoogleApiCl
     // fields we store for the deal
     private Deal deal;
     private String placeId;
-    private String location;
+    private Deal.Location location;
     private List<Image> dealImages;
 
     @Override
@@ -371,7 +371,7 @@ public class CreateDealActivity extends AppCompatActivity implements GoogleApiCl
         textPlaceAddress.setText(place.getAddress());
         placeId = place.getId();
         LatLng latLng = place.getLatLng();
-        location = "(" + latLng.latitude + "," + latLng.longitude + ")";
+        location = new Deal.Location(latLng.latitude, latLng.longitude);
     }
 
 
@@ -398,8 +398,8 @@ public class CreateDealActivity extends AppCompatActivity implements GoogleApiCl
 
         deal.placeId = placeId;
         Log.d(TAG, deal.placeId);
-        deal.location = location;
-        Log.d(TAG, deal.location);
+//        deal.location = location;
+//        Log.d(TAG, deal.location.x + "," + deal.location.y);
 
         Moshi moshi = new Moshi.Builder().build();
         JsonAdapter<Deal> jsonAdapter = moshi.adapter(Deal.class);
@@ -443,6 +443,11 @@ public class CreateDealActivity extends AppCompatActivity implements GoogleApiCl
      */
     void uploadDealImage() {
         if (dealImages.size() == 0) {
+            Intent intent = new Intent(CreateDealActivity.this, ViewSingleDealActivity.class);
+            intent.putExtra("ID", deal.id);
+            intent.addFlags(FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+            startActivity(intent);
+            finish();
             return;
         }
 

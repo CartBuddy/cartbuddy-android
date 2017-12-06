@@ -52,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final String TAG = "MAIN";
     final String serverUrl = "https://cartbuddy.benfu.me/deals?sort=recent";
 
+    private GeoDataClient geoDataClient;
+
     private Intent intent;
     private ListView listView;
     private ArrayList<Deal> deals = new ArrayList<>();
@@ -97,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             JSONArray dealsJson = new JSONArray(response);
                             for (int i = 0; i < dealsJson.length(); i++) {
                                 JSONObject deal = dealsJson.getJSONObject(i);
-                                Deal d = new Deal();
+                                final Deal d = new Deal();
                                 d.id = deal.getString("id");
                                 if(deal.getString("title").equals("null")) {
                                     d.title = "Great deal!";
@@ -117,13 +119,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
                                 //location
+                                d.placeId = deal.getString("placeId");
+
                                 if (deal.getString("location").equals("null")) {
-                                    d.location = "Not available";
-                                }else {
+                                    d.location = new Deal.Location(0, 0);
+                                }
+                                else {
                                     JSONObject jsonObject = deal.getJSONObject("location");
                                     d.lat = Double.valueOf(jsonObject.getString("x"));
                                     d.lon = Double.valueOf(jsonObject.getString("y"));
-                                    d.location = getCompleteAddressString(d.lat, d.lon);
+                                    d.location = new Deal.Location(d.lat, d.lon);
                                 }
 
                                 deals.add(d);
@@ -162,6 +167,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        geoDataClient = Places.getGeoDataClient(this, null);
 
         //all deals
         listView = (ListView) findViewById(R.id.list_view);
