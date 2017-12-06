@@ -122,7 +122,7 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
                                 }
 
                                 //location
-//                                d.placeId = deal.getString("placeId");
+                                d.placeId = deal.getString("placeId");
 //                                if (deal.getString("location").equals("null")) {
 //                                    d.location = new Deal.Location(0, 0);
 //                                }

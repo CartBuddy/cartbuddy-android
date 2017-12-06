@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
                                 //location
-//                                d.placeId = deal.getString("placeId");
+                                d.placeId = deal.getString("placeId");
 
                                 if (deal.getString("location").equals("null")) {
                                     d.locationStr = "Not available";

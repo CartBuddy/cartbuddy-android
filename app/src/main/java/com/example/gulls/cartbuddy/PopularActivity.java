@@ -111,7 +111,7 @@ public class PopularActivity extends AppCompatActivity implements View.OnClickLi
                                 d.date = deal.getString("createdAt");
 
                                 //location
-//                                d.placeId = deal.getString("placeId");
+                                d.placeId = deal.getString("placeId");
                                 if (deal.getString("location").equals("null")) {
                                     d.locationStr = "Not available";
                                 }

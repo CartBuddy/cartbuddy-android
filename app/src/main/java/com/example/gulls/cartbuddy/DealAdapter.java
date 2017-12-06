@@ -6,6 +6,7 @@ package com.example.gulls.cartbuddy;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,25 +94,33 @@ public class DealAdapter extends BaseAdapter {
         voteView.setText(likes.get(position));
         dateView.setText(dates.get(position));
 
-//        if (placeIds.get(position) != null) {
-//            geoDataClient.getPlaceById(placeIds.get(position)).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
-//                @Override
-//                public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
-//                    if (task.isSuccessful()) {
-//                        PlaceBufferResponse places = task.getResult();
-//                        if (places.getCount() > 0) {
-//                            Place place = places.get(0);
-//                            locationView.setText(place.getName());
-//                            places.release();
-//                        }
-//                        places.release();
-//                    }
-//                }
-//            });
-//        }
+        Log.d("DealAdapter", placeIds.get(position));
+        if (placeIds.get(position) != null) {
+            geoDataClient.getPlaceById(placeIds.get(position)).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
+                @Override
+                public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
+                    if (task.isSuccessful()) {
+                        PlaceBufferResponse places = task.getResult();
+                        if (places.getCount() > 0) {
+                            Place place = places.get(0);
+                            locationView.setText(place.getName());
+                            places.release();
+                        }
+                        else {
+                            locationView.setText("Location not available");
+                            places.release();
+                        }
+
+                    }
+                }
+            });
+        }
+        else {
+            locationView.setText("Location not available");
+        }
 
 
-        locationView.setText(locationStrs.get(position).toString());
+//        locationView.setText(locationStrs.get(position).toString());
         return grid;
     }
 }
