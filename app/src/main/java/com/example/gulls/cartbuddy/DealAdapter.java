@@ -20,6 +20,7 @@ import java.util.Date;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBufferResponse;
+import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -32,6 +33,7 @@ import com.squareup.picasso.Picasso;
 public class DealAdapter extends BaseAdapter {
     private Context mContext;
     private GeoDataClient geoDataClient;
+    private PlaceDetectionClient placeDetectionClient;
     private ArrayList<Deal> deals;
     private ArrayList<String> titles;
     private ArrayList<String> imageUrls;
@@ -43,6 +45,7 @@ public class DealAdapter extends BaseAdapter {
     public DealAdapter(Context c,  ArrayList<Deal> deals) {
         mContext = c;
         geoDataClient = Places.getGeoDataClient(c, null);
+        placeDetectionClient = Places.getPlaceDetectionClient(c, null);
         this.deals = deals;
         titles = new ArrayList<>();
         imageUrls = new ArrayList<>();
@@ -118,6 +121,9 @@ public class DealAdapter extends BaseAdapter {
         else {
             locationView.setText("Location not available");
         }
+
+        // show distance
+
 
 
 //        locationView.setText(locationStrs.get(position).toString());

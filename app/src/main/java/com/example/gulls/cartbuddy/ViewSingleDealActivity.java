@@ -158,7 +158,8 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
                                             if (places.getCount() > 0) {
                                                 Place place = places.get(0);
 //                                            TextView locationView = (TextView)findViewById(R.id.location);
-                                                locationView.setText(place.getName());
+                                                locationView.setText(place.getName().toString() + "\n" + place.getAddress().toString());
+
                                                 places.release();
                                             }
                                             else {
