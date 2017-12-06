@@ -3,6 +3,8 @@ package com.example.gulls.cartbuddy;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +13,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +40,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 
 import android.graphics.Color;
 
@@ -113,15 +118,18 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
                                     d.date = d.date.substring(0, 10);
                                 }
 
-                                //???
-                                String[] location = deal.getString("location").split(",");
-                                if (location.length == 2){
-                                    d.lat = Double.valueOf(location[0]);
-                                    d.lon = Double.valueOf(location[1]);
-                                    double distance = distance(Double.valueOf(location[0]), Double.valueOf(location[1]), lat, lon);
-                                    d.distance = distance;
+                                //location
+                                if (deal.getString("location").equals("null")) {
+                                    d.location = "Not available";
+                                    d.distance = Double.MAX_VALUE;
+                                }else {
+                                    JSONObject jsonObject = deal.getJSONObject("location");
+                                    d.lat = Double.valueOf(jsonObject.getString("x"));
+                                    d.lon = Double.valueOf(jsonObject.getString("y"));
+                                    d.distance = distance(d.lat, d.lon, lat, lon);
+                                    d.location = getCompleteAddressString(d.lat, d.lon);
+
                                 }
-                                //
 
                                 deals.add(d);
                             }
@@ -278,6 +286,31 @@ public class NearbyActivity extends AppCompatActivity implements GoogleApiClient
 //            Toast.makeText(ViewNearbyStreamsActivity.this, "Latitude: " + String.valueOf(mLastLocation.getLatitude()) + "Longitude: " +
 //                    String.valueOf(mLastLocation.getLongitude()), Toast.LENGTH_LONG).show();
         }
+    }
+
+    private String getCompleteAddressString(double LATITUDE, double LONGITUDE) {
+        String strAdd = "";
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(LATITUDE, LONGITUDE, 1);
+            if (addresses != null) {
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder("");
+                for (int i = 0; i <= returnedAddress.getMaxAddressLineIndex(); i++) {
+                    Log.w("locality",returnedAddress.getLocality());
+                    Log.w("name", returnedAddress.getFeatureName());
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+                }
+                strAdd = strReturnedAddress.toString().trim();
+                Log.w("Current loction address", strReturnedAddress.toString());
+            } else {
+                Log.w("Current loction address", "No Address returned!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.w("Current loction address", "Canont get Address!");
+        }
+        return strAdd;
     }
 
     @Override

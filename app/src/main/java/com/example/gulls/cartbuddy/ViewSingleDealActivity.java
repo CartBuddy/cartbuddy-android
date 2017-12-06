@@ -3,9 +3,12 @@ package com.example.gulls.cartbuddy;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -25,6 +28,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -118,6 +123,20 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
                             TextView dateView = (TextView)findViewById(R.id.date);
                             dateView.setText(deal.date);
 
+
+                            //location
+                            //location
+                            if (dealJson.getString("location").equals("null")) {
+                                deal.location = "Not available";
+                            }else {
+                                JSONObject jsonObject = dealJson.getJSONObject("location");
+                                deal.lat = Double.valueOf(jsonObject.getString("x"));
+                                deal.lon = Double.valueOf(jsonObject.getString("y"));
+                                deal.location = getCompleteAddressString(deal.lat, deal.lon);
+                            }
+                            TextView locationView = (TextView)findViewById(R.id.location);
+                            locationView.setText(deal.location);
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -167,13 +186,6 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
                 }
             }
         });
-
-        //???
-//        /id/likes
-//                "patch"
-//        {
-//            "mode":"++"
-//        }
     }
 
     public void updateUi() {
@@ -186,5 +198,30 @@ public class ViewSingleDealActivity extends AppCompatActivity implements View.On
         if (view.getId() == R.id.vote_btn) {
             voteBtnHandler();
         }
+    }
+
+    private String getCompleteAddressString(double LATITUDE, double LONGITUDE) {
+        String strAdd = "";
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(LATITUDE, LONGITUDE, 1);
+            if (addresses != null) {
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder("");
+                for (int i = 0; i <= returnedAddress.getMaxAddressLineIndex(); i++) {
+                    Log.w("locality",returnedAddress.getLocality());
+                    Log.w("name", returnedAddress.getFeatureName());
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+                }
+                strAdd = strReturnedAddress.toString().trim();
+                Log.w("Current loction address", strReturnedAddress.toString());
+            } else {
+                Log.w("Current loction address", "No Address returned!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.w("Current loction address", "Canont get Address!");
+        }
+        return strAdd;
     }
 }

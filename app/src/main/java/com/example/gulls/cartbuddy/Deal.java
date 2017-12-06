@@ -26,6 +26,7 @@ public class Deal {
     public double lat = 0.0;
     public double lon = 0.0;
     public double distance = 0.0;
+    public String location;
     public Deal(){
 
     }

@@ -21,11 +21,22 @@
         android:layout_marginBottom="20dp"
         android:layout_marginTop="20dp" />
 
-
     <TextView
+        android:text="Title:"
+        android:textStyle="bold|italic"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#000000" />
+
+    <TextView
+        android:background="@drawable/back"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="10dp"
         android:gravity="center_vertical"
         android:id="@+id/deal_title"
         android:layout_width="match_parent"
@@ -33,9 +44,21 @@
         android:textColor="#000000" />
 
     <TextView
+        android:text="Description:"
+        android:textStyle="bold|italic"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#000000" />
+
+    <TextView
+        android:background="@drawable/back"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="10dp"
         android:id="@+id/des"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -45,13 +68,12 @@
     <LinearLayout
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
 
         <Button
-            android:background="@color/colorPrimary"
             android:layout_marginRight="20dp"
             android:id="@+id/vote_btn"
             android:layout_width="wrap_content"
@@ -69,5 +91,19 @@
             android:textColor="#000000" />
 
     </LinearLayout>
+
+    <TextView
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="20dp"
+        android:includeFontPadding="false"
+        android:gravity="center_vertical"
+        android:id="@+id/location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/ic_place_black_24dp"
+        android:drawablePadding="5dp"
+        android:text="UT PCL"
+        android:textColor="#000000"
+        android:textSize="15dp"></TextView>
 
 </LinearLayout>
