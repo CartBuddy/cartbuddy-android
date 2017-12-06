@@ -540,8 +540,8 @@ public class CreateDealActivity extends AppCompatActivity implements GoogleApiCl
         if (mLastLocation != null) {
             lon = mLastLocation.getLongitude();
             lat = mLastLocation.getLatitude();
-            Toast.makeText(CreateDealActivity.this, "Latitude: " + String.valueOf(mLastLocation.getLatitude()) + "Longitude: " +
-                    String.valueOf(mLastLocation.getLongitude()), Toast.LENGTH_LONG).show();
+//            Toast.makeText(CreateDealActivity.this, "Latitude: " + String.valueOf(mLastLocation.getLatitude()) + "Longitude: " +
+//                    String.valueOf(mLastLocation.getLongitude()), Toast.LENGTH_LONG).show();
         }
     }
 
