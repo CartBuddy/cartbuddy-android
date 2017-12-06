@@ -30,6 +30,7 @@ public class Deal {
     public transient double lon = 0.0;
 
     public double distance = 0.0;
+
     public String placeId;
 
     public Deal(){
