@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             JSONArray dealsJson = new JSONArray(response);
                             for (int i = 0; i < dealsJson.length(); i++) {
                                 JSONObject deal = dealsJson.getJSONObject(i);
-                                final Deal d = new Deal();
+                                Deal d = new Deal();
                                 d.id = deal.getString("id");
                                 if(deal.getString("title").equals("null")) {
                                     d.title = "Great deal!";
